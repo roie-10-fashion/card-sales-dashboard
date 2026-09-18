@@ -1,3 +1,416 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Card Sales Dashboard</title></head>
-<body><h1>Card Sales Dashboard - coming soon</h1></body></html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Sales Dashboard</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1: #fcfcfb;
+    --page: #f4f3fb;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --border: rgba(11,11,11,0.10);
+    --good: #0ca30c;
+    --critical: #d03b3b;
+    --warning: #fab219;
+
+    --brand-indigo: #312e81;
+    --brand-indigo-2: #4338ca;
+    --brand-gold: #b45309;
+    --brand-gold-bg: #fff3c4;
+
+    --grp-identity: #4338ca;   --grp-identity-bg: #eef0ff;
+    --grp-purchase: #2563eb;   --grp-purchase-bg: #eaf2ff;
+    --grp-listing:  #7c3aed;   --grp-listing-bg: #f4eeff;
+    --grp-sale:     #059669;   --grp-sale-bg: #eafbf3;
+    --grp-fees:     #d97706;   --grp-fees-bg: #fff6e9;
+    --grp-review:   #dc2626;   --grp-review-bg: #fdecec;
+
+    --s1: #2a78d6; /* blue */
+    --s2: #eb6834; /* orange */
+    --s3: #1baf7a; /* aqua */
+    --s4: #eda100; /* yellow */
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) {
+      color-scheme: dark;
+      --surface-1: #1a1a19;
+      --page: #121022;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --border: rgba(255,255,255,0.10);
+      --good: #0ca30c;
+      --critical: #e66767;
+      --warning: #fab219;
+
+      --grp-identity-bg: #211f45;
+      --grp-purchase-bg: #16233f;
+      --grp-listing-bg: #241a45;
+      --grp-sale-bg: #113328;
+      --grp-fees-bg: #3a2a10;
+      --grp-review-bg: #3a1616;
+
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #121022;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --grid: #2c2c2a;
+    --border: rgba(255,255,255,0.10);
+    --grp-identity-bg: #211f45; --grp-purchase-bg: #16233f; --grp-listing-bg: #241a45;
+    --grp-sale-bg: #113328; --grp-fees-bg: #3a2a10; --grp-review-bg: #3a1616;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    background: var(--page);
+    color: var(--text-primary);
+    padding-bottom: 60px;
+  }
+  .hero {
+    background: linear-gradient(135deg, var(--brand-indigo) 0%, #6d28d9 55%, var(--brand-gold) 130%);
+    color: #fff;
+    padding: 28px 20px 46px;
+    text-align: center;
+  }
+  .hero h1 { margin: 0 0 4px; font-size: clamp(22px, 4vw, 32px); }
+  .hero .sub { opacity: .9; font-size: 14px; font-style: italic; }
+  .hero .updated { margin-top: 10px; font-size: 12px; opacity: .8; }
+
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: -26px;
+  }
+  .stat-tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 16px;
+    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  }
+  .stat-tile .label { font-size: 11.5px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .03em; }
+  .stat-tile .value { font-size: 22px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .stat-tile.good .value { color: var(--good); }
+  .stat-tile.critical .value { color: var(--critical); }
+  .stat-tile.warn .value { color: #b45309; }
+
+  section { margin-top: 30px; }
+  h2 {
+    font-size: 16px;
+    margin: 0 0 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 760px) { .charts { grid-template-columns: 1fr; } }
+  .chart-card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .chart-card .title { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
+  .bar-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
+  .bar-row .bar-label { width: 92px; font-size: 12px; color: var(--text-secondary); flex-shrink: 0; }
+  .bar-row .bar-track { flex: 1; background: var(--grid); border-radius: 6px; height: 20px; position: relative; overflow: hidden; }
+  .bar-row .bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; }
+  .bar-row .bar-value { width: 88px; text-align: right; font-size: 12px; font-variant-numeric: tabular-nums; flex-shrink: 0; }
+  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 11.5px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .toolbar input[type=text] {
+    flex: 1; min-width: 180px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface-1); color: var(--text-primary); font-size: 14px;
+  }
+  .toolbar select {
+    padding: 9px 10px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface-1); color: var(--text-primary); font-size: 13px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 14px;
+  }
+  .card-tile {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,.06);
+    display: flex; flex-direction: column;
+  }
+  .card-tile .img-wrap {
+    aspect-ratio: 3/4;
+    background: var(--grp-identity-bg);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .card-tile .img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .card-tile .img-wrap .placeholder { font-size: 34px; opacity: .35; }
+  .card-tile .body { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+  .card-tile .name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .card-tile .meta { font-size: 11px; color: var(--text-secondary); }
+  .badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: auto; }
+  .badge { font-size: 10.5px; padding: 3px 8px; border-radius: 999px; font-weight: 600; }
+  .badge.sold { background: var(--grp-sale-bg); color: var(--grp-sale); }
+  .badge.listed { background: var(--grp-listing-bg); color: var(--grp-listing); }
+  .badge.unlisted { background: var(--grid); color: var(--text-secondary); }
+  .badge.review { background: var(--grp-review-bg); color: var(--grp-review); }
+  .card-tile .profit { font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .card-tile .profit.good { color: var(--good); }
+  .card-tile .profit.bad { color: var(--critical); }
+
+  .review-table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface-1); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+  .review-table th, .review-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--grid); }
+  .review-table th { background: var(--grp-review-bg); color: var(--grp-review); font-size: 11.5px; text-transform: uppercase; letter-spacing: .02em; }
+  .review-table tr:last-child td { border-bottom: none; }
+  .empty-note { padding: 20px; text-align: center; color: var(--text-secondary); font-size: 13px; background: var(--surface-1); border-radius: 14px; border: 1px dashed var(--border); }
+
+  footer { text-align: center; color: var(--muted); font-size: 11.5px; margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>🎴 Card Sales Dashboard</h1>
+  <div class="sub">Trading Card Purchases, Listings &amp; Sales</div>
+  <div class="updated" id="updatedAt"></div>
+</div>
+
+<div class="wrap">
+  <div class="stats" id="statsRow"></div>
+
+  <section>
+    <h2>📊 Overview</h2>
+    <div class="charts">
+      <div class="chart-card">
+        <div class="title">Invested vs. Potential vs. Realized (USD)</div>
+        <div id="moneyChart"></div>
+        <div class="legend" id="moneyLegend"></div>
+      </div>
+      <div class="chart-card">
+        <div class="title">Cards by status</div>
+        <div id="statusChart"></div>
+        <div class="legend" id="statusLegend"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reviewSection">
+    <h2>🔍 Needs manual review</h2>
+    <div id="reviewList"></div>
+  </section>
+
+  <section>
+    <h2>🎴 All cards</h2>
+    <div class="toolbar">
+      <input type="text" id="searchBox" placeholder="Search name, set, number...">
+      <select id="statusFilter">
+        <option value="">All statuses</option>
+        <option value="sold">Sold</option>
+        <option value="listed">Listed</option>
+        <option value="unlisted">Not listed</option>
+      </select>
+      <select id="reviewFilter">
+        <option value="">All cards</option>
+        <option value="yes">Needs review only</option>
+      </select>
+    </div>
+    <div class="grid" id="cardGrid"></div>
+    <div class="empty-note" id="emptyNote" style="display:none;">No cards match this filter.</div>
+  </section>
+
+  <footer>Generated automatically from Card_Sales_Tracker.xlsx &middot; Exchange rate used: <span id="fxRate"></span></footer>
+</div>
+
+<script>
+// ==== DATA (replaced by update_dashboard.py between the markers below) ====
+// DATA_START
+window.CARD_DATA = {
+  "generated_at": "2026-09-18T00:00:00+08:00",
+  "exchange_rate": 7.2,
+  "stats": {
+    "total_cards": 1,
+    "total_invested_usd": 120,
+    "total_potential_usd": 450,
+    "total_actual_usd": 0,
+    "total_net_profit_usd": 0,
+    "needs_review_count": 0,
+    "listed_count": 1,
+    "sold_count": 0,
+    "unlisted_count": 0
+  },
+  "cards": [
+    {
+      "id": "sample-1",
+      "image": null,
+      "name": "Charizard — Base Set",
+      "meta": "#4/102 — Near Mint — Rare Holo",
+      "purchase_price_usd": 120,
+      "purchase_date": "2026-01-15",
+      "potential_value_usd": 450,
+      "listed_now": "Yes",
+      "platform_listed": "eBay",
+      "actual_sale_usd": null,
+      "sale_date": null,
+      "platform_sold": null,
+      "net_profit_usd": null,
+      "needs_review": false,
+      "status": "listed"
+    }
+  ]
+};
+// DATA_END
+// ==== END DATA ====
+
+const D = window.CARD_DATA;
+const fmt = (n) => n === null || n === undefined || n === "" ? "—" : "$" + Number(n).toLocaleString(undefined, {maximumFractionDigits: 0});
+
+document.getElementById('updatedAt').textContent = 'Last updated: ' + new Date(D.generated_at).toLocaleString();
+document.getElementById('fxRate').textContent = '1 USD = ' + D.exchange_rate + ' RMB';
+
+// ---- stat tiles ----
+const s = D.stats;
+const profitClass = s.total_net_profit_usd > 0 ? 'good' : (s.total_net_profit_usd < 0 ? 'critical' : '');
+const tiles = [
+  ['Total cards', s.total_cards, ''],
+  ['Invested', fmt(s.total_invested_usd), ''],
+  ['Potential value', fmt(s.total_potential_usd), ''],
+  ['Realized sales', fmt(s.total_actual_usd), ''],
+  ['Net profit', fmt(s.total_net_profit_usd), profitClass],
+  ['Needs review', s.needs_review_count, s.needs_review_count > 0 ? 'warn' : ''],
+];
+document.getElementById('statsRow').innerHTML = tiles.map(([label, value, cls]) =>
+  `<div class="stat-tile ${cls}"><div class="label">${label}</div><div class="value">${value}</div></div>`
+).join('');
+
+// ---- money chart (Invested / Potential / Realized) ----
+(function () {
+  const rows = [
+    ['Invested', s.total_invested_usd, 'var(--s1)'],
+    ['Potential', s.total_potential_usd, 'var(--s2)'],
+    ['Realized', s.total_actual_usd, 'var(--s3)'],
+  ];
+  const max = Math.max(1, ...rows.map(r => r[1] || 0));
+  document.getElementById('moneyChart').innerHTML = rows.map(([label, val, color]) => {
+    const pct = Math.max(2, Math.round((val || 0) / max * 100));
+    return `<div class="bar-row" title="${label}: ${fmt(val)}">
+      <div class="bar-label">${label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-value">${fmt(val)}</div>
+    </div>`;
+  }).join('');
+})();
+
+// ---- status chart (Not listed / Listed / Sold) ----
+(function () {
+  const rows = [
+    ['Not listed', s.unlisted_count, 'var(--muted)'],
+    ['Listed', s.listed_count, 'var(--s1)'],
+    ['Sold', s.sold_count, 'var(--s3)'],
+  ];
+  const max = Math.max(1, ...rows.map(r => r[1] || 0));
+  document.getElementById('statusChart').innerHTML = rows.map(([label, val, color]) => {
+    const pct = Math.max(2, Math.round((val || 0) / max * 100));
+    return `<div class="bar-row" title="${label}: ${val}">
+      <div class="bar-label">${label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="bar-value">${val}</div>
+    </div>`;
+  }).join('');
+})();
+
+// ---- needs-review list ----
+(function () {
+  const flagged = D.cards.filter(c => c.needs_review);
+  const el = document.getElementById('reviewList');
+  if (flagged.length === 0) {
+    el.innerHTML = '<div class="empty-note">Nothing flagged right now — all imported cards have been checked.</div>';
+    return;
+  }
+  el.innerHTML = `<table class="review-table"><thead><tr>
+      <th>Card</th><th>Purchase price</th><th>Status</th>
+    </tr></thead><tbody>
+    ${flagged.map(c => `<tr>
+      <td><strong>${escapeHtml(c.name)}</strong><br><span style="color:var(--text-secondary)">${escapeHtml(c.meta||'')}</span></td>
+      <td>${fmt(c.purchase_price_usd)}</td>
+      <td>${statusBadge(c)}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+})();
+
+// ---- card grid with search/filter ----
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function statusBadge(c) {
+  if (c.status === 'sold') return '<span class="badge sold">Sold</span>';
+  if (c.status === 'listed') return '<span class="badge listed">Listed</span>';
+  return '<span class="badge unlisted">Not listed</span>';
+}
+function cardTile(c) {
+  const img = c.image
+    ? `<img src="${c.image}" alt="${escapeHtml(c.name)}" loading="lazy">`
+    : `<div class="placeholder">🃏</div>`;
+  let profitHtml = '';
+  if (c.net_profit_usd !== null && c.net_profit_usd !== undefined) {
+    const cls = c.net_profit_usd >= 0 ? 'good' : 'bad';
+    profitHtml = `<div class="profit ${cls}">${c.net_profit_usd >= 0 ? '+' : ''}${fmt(c.net_profit_usd)}</div>`;
+  }
+  return `<div class="card-tile" data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}" data-review="${c.needs_review ? 'yes' : 'no'}">
+    <div class="img-wrap">${img}</div>
+    <div class="body">
+      <div class="name">${escapeHtml(c.name)}</div>
+      <div class="meta">${escapeHtml(c.meta || '')}</div>
+      <div class="meta">Purchase: ${fmt(c.purchase_price_usd)}</div>
+      ${profitHtml}
+      <div class="badges">
+        ${statusBadge(c)}
+        ${c.needs_review ? '<span class="badge review">Review</span>' : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+const gridEl = document.getElementById('cardGrid');
+const emptyNote = document.getElementById('emptyNote');
+function renderGrid() {
+  const q = document.getElementById('searchBox').value.trim().toLowerCase();
+  const statusF = document.getElementById('statusFilter').value;
+  const reviewF = document.getElementById('reviewFilter').value;
+  const filtered = D.cards.filter(c => {
+    if (q && !((c.name + ' ' + (c.meta||'')).toLowerCase().includes(q))) return false;
+    if (statusF && c.status !== statusF) return false;
+    if (reviewF === 'yes' && !c.needs_review) return false;
+    return true;
+  });
+  gridEl.innerHTML = filtered.map(cardTile).join('');
+  emptyNote.style.display = filtered.length === 0 ? 'block' : 'none';
+}
+document.getElementById('searchBox').addEventListener('input', renderGrid);
+document.getElementById('statusFilter').addEventListener('change', renderGrid);
+document.getElementById('reviewFilter').addEventListener('change', renderGrid);
+renderGrid();
+</script>
+</body>
+</html>
