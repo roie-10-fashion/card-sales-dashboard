@@ -4,197 +4,286 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Card Sales Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    color-scheme: light;
-    --surface-1: #fcfcfb;
-    --page: #f4f3fb;
-    --text-primary: #0b0b0b;
-    --text-secondary: #52514e;
-    --muted: #898781;
-    --grid: #e1e0d9;
-    --border: rgba(11,11,11,0.10);
-    --good: #0ca30c;
-    --critical: #d03b3b;
-    --warning: #fab219;
+    --bg: #0a0912;
+    --bg-2: #100e1c;
+    --surface: #16132399;
+    --surface-solid: #161323;
+    --surface-2: #1e1a30;
+    --border: rgba(255,255,255,0.08);
+    --border-strong: rgba(255,255,255,0.14);
+    --text-primary: #f5f4fb;
+    --text-secondary: #a9a4c4;
+    --muted: #726d8e;
+    --grid: rgba(255,255,255,0.07);
 
-    --brand-indigo: #312e81;
-    --brand-indigo-2: #4338ca;
-    --brand-gold: #b45309;
-    --brand-gold-bg: #fff3c4;
+    --good: #34d399;
+    --critical: #f87171;
+    --warning: #fbbf24;
 
-    --grp-identity: #4338ca;   --grp-identity-bg: #eef0ff;
-    --grp-purchase: #2563eb;   --grp-purchase-bg: #eaf2ff;
-    --grp-listing:  #7c3aed;   --grp-listing-bg: #f4eeff;
-    --grp-sale:     #059669;   --grp-sale-bg: #eafbf3;
-    --grp-fees:     #d97706;   --grp-fees-bg: #fff6e9;
-    --grp-review:   #dc2626;   --grp-review-bg: #fdecec;
+    --identity: #818cf8; --identity-tint: rgba(129,140,248,0.14);
+    --purchase: #60a5fa; --purchase-tint: rgba(96,165,250,0.14);
+    --listing:  #c084fc; --listing-tint: rgba(192,132,252,0.14);
+    --sale:     #34d399; --sale-tint: rgba(52,211,153,0.14);
+    --fees:     #fbbf24; --fees-tint: rgba(251,191,36,0.14);
+    --review:   #f87171; --review-tint: rgba(248,113,113,0.14);
 
-    --s1: #2a78d6; /* blue */
-    --s2: #eb6834; /* orange */
-    --s3: #1baf7a; /* aqua */
-    --s4: #eda100; /* yellow */
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:where(:not([data-theme="light"])) {
-      color-scheme: dark;
-      --surface-1: #1a1a19;
-      --page: #121022;
-      --text-primary: #ffffff;
-      --text-secondary: #c3c2b7;
-      --muted: #898781;
-      --grid: #2c2c2a;
-      --border: rgba(255,255,255,0.10);
-      --good: #0ca30c;
-      --critical: #e66767;
-      --warning: #fab219;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70;
 
-      --grp-identity-bg: #211f45;
-      --grp-purchase-bg: #16233f;
-      --grp-listing-bg: #241a45;
-      --grp-sale-bg: #113328;
-      --grp-fees-bg: #3a2a10;
-      --grp-review-bg: #3a1616;
-
-      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
-    }
-  }
-  :root[data-theme="dark"] {
-    color-scheme: dark;
-    --surface-1: #1a1a19;
-    --page: #121022;
-    --text-primary: #ffffff;
-    --text-secondary: #c3c2b7;
-    --grid: #2c2c2a;
-    --border: rgba(255,255,255,0.10);
-    --grp-identity-bg: #211f45; --grp-purchase-bg: #16233f; --grp-listing-bg: #241a45;
-    --grp-sale-bg: #113328; --grp-fees-bg: #3a2a10; --grp-review-bg: #3a1616;
-    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --font-display: 'Sora', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, "Segoe UI", sans-serif;
   }
 
   * { box-sizing: border-box; }
+  html { color-scheme: dark; }
   body {
     margin: 0;
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    background: var(--page);
+    font-family: var(--font-body);
+    background: var(--bg);
     color: var(--text-primary);
     padding-bottom: 60px;
+    -webkit-font-smoothing: antialiased;
   }
+
+  /* ---------------- hero ---------------- */
   .hero {
-    background: linear-gradient(135deg, var(--brand-indigo) 0%, #6d28d9 55%, var(--brand-gold) 130%);
-    color: #fff;
-    padding: 28px 20px 46px;
+    position: relative;
+    overflow: hidden;
+    padding: 46px 20px 64px;
     text-align: center;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--border);
   }
-  .hero h1 { margin: 0 0 4px; font-size: clamp(22px, 4vw, 32px); }
-  .hero .sub { opacity: .9; font-size: 14px; font-style: italic; }
-  .hero .updated { margin-top: 10px; font-size: 12px; opacity: .8; }
+  .hero::before, .hero::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: .35;
+    pointer-events: none;
+  }
+  .hero::before {
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, #7c3aed, transparent 70%);
+    top: -180px; left: 8%;
+  }
+  .hero::after {
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, #f59e0b, transparent 70%);
+    top: -140px; right: 6%;
+  }
+  .hero-inner { position: relative; z-index: 1; }
+  .hero .kicker {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--text-secondary); background: rgba(255,255,255,.05);
+    border: 1px solid var(--border); padding: 5px 12px; border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  .hero .kicker .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--good); box-shadow: 0 0 8px var(--good); }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    margin: 0 0 8px;
+    font-size: clamp(30px, 5.2vw, 46px);
+    letter-spacing: -0.02em;
+    background: linear-gradient(100deg, #f59e0b, #ec4899, #8b5cf6, #3b82f6, #f59e0b);
+    background-size: 250% auto;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shine 9s linear infinite;
+  }
+  @keyframes shine { to { background-position: 250% center; } }
+  @media (prefers-reduced-motion: reduce) { .hero h1 { animation: none; } }
+  .hero .sub { color: var(--text-secondary); font-size: 15px; }
+  .hero .updated { margin-top: 14px; font-size: 12px; color: var(--muted); }
 
-  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 20px; }
 
+  /* ---------------- stat tiles ---------------- */
   .stats {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-top: -26px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 14px;
+    margin-top: -34px;
+    position: relative; z-index: 2;
   }
   .stat-tile {
-    background: var(--surface-1);
+    background: var(--surface-solid);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 16px;
-    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+    border-left: 3px solid var(--accent, var(--identity));
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: 0 12px 28px rgba(0,0,0,.35);
   }
-  .stat-tile .label { font-size: 11.5px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .03em; }
-  .stat-tile .value { font-size: 22px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
-  .stat-tile.good .value { color: var(--good); }
-  .stat-tile.critical .value { color: var(--critical); }
-  .stat-tile.warn .value { color: #b45309; }
+  .stat-tile .label { font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; }
+  .stat-tile .value { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-top: 6px; color: var(--text-primary); }
+  .stat-tile.good { --accent: var(--good); } .stat-tile.good .value { color: var(--good); }
+  .stat-tile.critical { --accent: var(--critical); } .stat-tile.critical .value { color: var(--critical); }
+  .stat-tile.warn { --accent: var(--warning); } .stat-tile.warn .value { color: var(--warning); }
 
-  section { margin-top: 30px; }
+  section { margin-top: 34px; }
   h2 {
-    font-size: 16px;
-    margin: 0 0 12px;
+    font-family: var(--font-display);
+    font-size: 17px;
+    margin: 0 0 14px;
     display: flex; align-items: center; gap: 8px;
+    font-weight: 700;
   }
 
-  .charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media (max-width: 760px) { .charts { grid-template-columns: 1fr; } }
+  /* ---------------- charts ---------------- */
+  .charts { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 16px; }
+  @media (max-width: 780px) { .charts { grid-template-columns: 1fr; } }
   .chart-card {
-    background: var(--surface-1);
+    background: var(--surface-solid);
     border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 16px;
+    border-radius: 16px;
+    padding: 20px;
   }
-  .chart-card .title { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; }
-  .bar-row { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
-  .bar-row .bar-label { width: 92px; font-size: 12px; color: var(--text-secondary); flex-shrink: 0; }
-  .bar-row .bar-track { flex: 1; background: var(--grid); border-radius: 6px; height: 20px; position: relative; overflow: hidden; }
-  .bar-row .bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; }
-  .bar-row .bar-value { width: 88px; text-align: right; font-size: 12px; font-variant-numeric: tabular-nums; flex-shrink: 0; }
-  .legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 10px; font-size: 11.5px; color: var(--text-secondary); }
-  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .chart-card .title { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 14px; font-weight: 600; }
+  .hbar-row { display: flex; align-items: center; gap: 12px; margin: 14px 0; }
+  .hbar-row .lbl { width: 84px; font-size: 12.5px; color: var(--text-secondary); flex-shrink: 0; }
+  .hbar-row svg { flex: 1; height: 22px; overflow: visible; }
+  .hbar-row .val { width: 92px; text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; font-weight: 600; flex-shrink: 0; }
+
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px; font-size: 12px; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
   .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 
-  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-  .toolbar input[type=text] {
-    flex: 1; min-width: 180px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--border);
-    background: var(--surface-1); color: var(--text-primary); font-size: 14px;
-  }
-  .toolbar select {
-    padding: 9px 10px; border-radius: 10px; border: 1px solid var(--border);
-    background: var(--surface-1); color: var(--text-primary); font-size: 13px;
-  }
+  .donut-wrap { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; justify-content: center; }
+  .donut-center-label { font-family: var(--font-display); font-size: 26px; font-weight: 800; fill: var(--text-primary); }
+  .donut-center-sub { font-size: 10.5px; fill: var(--muted); }
 
+  .tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: #1e1a30;
+    border: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.5);
+    z-index: 999;
+    opacity: 0;
+    transition: opacity .1s;
+    white-space: nowrap;
+  }
+  .tooltip.show { opacity: 1; }
+
+  /* ---------------- toolbar / toggle ---------------- */
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
+  .toolbar input[type=text] {
+    flex: 1; min-width: 180px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface-solid); color: var(--text-primary); font-size: 14px; font-family: var(--font-body);
+  }
+  .toolbar input::placeholder { color: var(--muted); }
+  .toolbar select {
+    padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border);
+    background: var(--surface-solid); color: var(--text-primary); font-size: 13px; font-family: var(--font-body);
+  }
+  .view-toggle { display: flex; background: var(--surface-solid); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 2px; }
+  .view-toggle button {
+    border: none; background: transparent; color: var(--text-secondary); font-size: 13px; font-family: var(--font-body);
+    padding: 7px 14px; border-radius: 8px; cursor: pointer; font-weight: 600;
+  }
+  .view-toggle button.active { background: var(--listing); color: #1a0f2e; }
+
+  /* ---------------- card grid ---------------- */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
   }
   .card-tile {
-    background: var(--surface-1);
+    background: var(--surface-solid);
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,.06);
     display: flex; flex-direction: column;
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
   }
+  .card-tile:hover { transform: translateY(-4px); border-color: var(--border-strong); box-shadow: 0 18px 34px rgba(0,0,0,.45); }
   .card-tile .img-wrap {
     aspect-ratio: 3/4;
-    background: var(--grp-identity-bg);
+    position: relative;
+    background:
+      repeating-linear-gradient(135deg, var(--identity-tint) 0 10px, transparent 10px 20px),
+      linear-gradient(160deg, #1c1830, #120f1e);
     display: flex; align-items: center; justify-content: center;
     overflow: hidden;
   }
   .card-tile .img-wrap img { width: 100%; height: 100%; object-fit: cover; }
-  .card-tile .img-wrap .placeholder { font-size: 34px; opacity: .35; }
-  .card-tile .body { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
-  .card-tile .name { font-size: 13px; font-weight: 600; line-height: 1.3; }
+  .card-tile .img-wrap .placeholder { font-size: 36px; opacity: .5; filter: grayscale(.2); }
+  .card-tile .body { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; gap: 7px; }
+  .card-tile .name { font-size: 13.5px; font-weight: 700; line-height: 1.3; font-family: var(--font-display); }
   .card-tile .meta { font-size: 11px; color: var(--text-secondary); }
-  .badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: auto; }
-  .badge { font-size: 10.5px; padding: 3px 8px; border-radius: 999px; font-weight: 600; }
-  .badge.sold { background: var(--grp-sale-bg); color: var(--grp-sale); }
-  .badge.listed { background: var(--grp-listing-bg); color: var(--grp-listing); }
-  .badge.unlisted { background: var(--grid); color: var(--text-secondary); }
-  .badge.review { background: var(--grp-review-bg); color: var(--grp-review); }
-  .card-tile .profit { font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
+  .badge { font-size: 10.5px; padding: 3px 9px; border-radius: 999px; font-weight: 700; }
+  .badge.sold { background: var(--sale-tint); color: var(--sale); }
+  .badge.listed { background: var(--listing-tint); color: var(--listing); }
+  .badge.unlisted { background: rgba(255,255,255,.06); color: var(--text-secondary); }
+  .badge.review { background: var(--review-tint); color: var(--review); }
+  .card-tile .profit { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .card-tile .profit.good { color: var(--good); }
   .card-tile .profit.bad { color: var(--critical); }
 
-  .review-table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface-1); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
-  .review-table th, .review-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--grid); }
-  .review-table th { background: var(--grp-review-bg); color: var(--grp-review); font-size: 11.5px; text-transform: uppercase; letter-spacing: .02em; }
+  /* ---------------- review list ---------------- */
+  .review-table, .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .review-table { background: var(--surface-solid); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+  .review-table th, .review-table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--grid); }
+  .review-table th { background: var(--review-tint); color: var(--review); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; }
   .review-table tr:last-child td { border-bottom: none; }
-  .empty-note { padding: 20px; text-align: center; color: var(--text-secondary); font-size: 13px; background: var(--surface-1); border-radius: 14px; border: 1px dashed var(--border); }
+  .empty-note { padding: 22px; text-align: center; color: var(--text-secondary); font-size: 13px; background: var(--surface-solid); border-radius: 14px; border: 1px dashed var(--border); }
 
-  footer { text-align: center; color: var(--muted); font-size: 11.5px; margin-top: 40px; }
+  /* ---------------- full data table ---------------- */
+  .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--surface-solid);
+  }
+  .data-table { min-width: 1500px; }
+  .data-table th {
+    position: sticky; top: 0;
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em;
+    text-align: left; padding: 10px 12px; white-space: nowrap;
+    color: #0d0b16; font-weight: 700;
+  }
+  .data-table td { padding: 9px 12px; white-space: nowrap; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  .data-table td.details-cell { white-space: normal; min-width: 220px; font-variant-numeric: normal; }
+  .data-table tbody tr:hover { background: rgba(255,255,255,.03); }
+  .grp-identity { background: var(--identity); } .grp-identity-bg td { background: var(--identity-tint); }
+  .grp-purchase { background: var(--purchase); }
+  .grp-listing { background: var(--listing); }
+  .grp-sale { background: var(--sale); }
+  .grp-fees { background: var(--fees); }
+  .grp-review { background: var(--review); }
+  .col-identity { background: rgba(129,140,248,.05); }
+  .col-purchase { background: rgba(96,165,250,.05); }
+  .col-listing { background: rgba(192,132,252,.05); }
+  .col-sale { background: rgba(52,211,153,.05); }
+  .col-fees { background: rgba(251,191,36,.05); }
+  .col-review { background: rgba(248,113,113,.05); }
+  .pos { color: var(--good); font-weight: 700; }
+  .neg { color: var(--critical); font-weight: 700; }
+  .thumb { width: 34px; height: 44px; border-radius: 5px; object-fit: cover; vertical-align: middle; background: var(--surface-2); }
+
+  footer { text-align: center; color: var(--muted); font-size: 11.5px; margin-top: 44px; }
 </style>
 </head>
 <body>
 
 <div class="hero">
-  <h1>🎴 Card Sales Dashboard</h1>
-  <div class="sub">Trading Card Purchases, Listings &amp; Sales</div>
-  <div class="updated" id="updatedAt"></div>
+  <div class="hero-inner">
+    <div class="kicker"><span class="dot"></span> Live &middot; syncs from Excel</div>
+    <h1>Card Sales Dashboard</h1>
+    <div class="sub">Trading Card Purchases, Listings &amp; Sales</div>
+    <div class="updated" id="updatedAt"></div>
+  </div>
 </div>
 
 <div class="wrap">
@@ -206,12 +295,10 @@
       <div class="chart-card">
         <div class="title">Invested vs. Potential vs. Realized (USD)</div>
         <div id="moneyChart"></div>
-        <div class="legend" id="moneyLegend"></div>
       </div>
       <div class="chart-card">
         <div class="title">Cards by status</div>
         <div id="statusChart"></div>
-        <div class="legend" id="statusLegend"></div>
       </div>
     </div>
   </section>
@@ -222,7 +309,7 @@
   </section>
 
   <section>
-    <h2>🎴 All cards</h2>
+    <h2>🎴 Collection</h2>
     <div class="toolbar">
       <input type="text" id="searchBox" placeholder="Search name, set, number...">
       <select id="statusFilter">
@@ -235,48 +322,45 @@
         <option value="">All cards</option>
         <option value="yes">Needs review only</option>
       </select>
+      <div class="view-toggle">
+        <button id="btnViewCards" class="active">🎴 Cards</button>
+        <button id="btnViewTable">📋 Table</button>
+      </div>
     </div>
     <div class="grid" id="cardGrid"></div>
+    <div class="table-scroll" id="tableWrap" style="display:none;">
+      <table class="data-table" id="dataTable"></table>
+    </div>
     <div class="empty-note" id="emptyNote" style="display:none;">No cards match this filter.</div>
   </section>
 
   <footer>Generated automatically from Card_Sales_Tracker.xlsx &middot; Exchange rate used: <span id="fxRate"></span></footer>
 </div>
 
+<div class="tooltip" id="tooltip"></div>
+
 <script>
 // ==== DATA (replaced by update_dashboard.py between the markers below) ====
 // DATA_START
 window.CARD_DATA = {
-  "generated_at": "2026-09-18T16:39:28.981265+08:00",
+  "generated_at": "2026-09-18T00:00:00+08:00",
   "exchange_rate": 7.2,
   "stats": {
-    "total_cards": 1,
-    "total_invested_usd": 120.0,
-    "total_potential_usd": 450.0,
-    "total_actual_usd": 0,
-    "total_net_profit_usd": 0,
-    "needs_review_count": 0,
-    "listed_count": 1,
-    "sold_count": 0,
-    "unlisted_count": 0
+    "total_cards": 1, "total_invested_usd": 120, "total_potential_usd": 450,
+    "total_actual_usd": 0, "total_net_profit_usd": 0, "needs_review_count": 0,
+    "listed_count": 1, "sold_count": 0, "unlisted_count": 0
   },
   "cards": [
     {
-      "id": "row-7",
-      "image": null,
-      "name": "Charizard — Base Set",
-      "meta": "#4/102 — Near Mint — Rare Holo",
-      "purchase_price_usd": 120.0,
-      "purchase_date": "2026-01-15",
-      "potential_value_usd": 450.0,
-      "listed_now": "Yes",
-      "platform_listed": "eBay",
-      "actual_sale_usd": null,
-      "sale_date": null,
-      "platform_sold": null,
-      "net_profit_usd": null,
-      "needs_review": false,
-      "status": "listed"
+      "id": "sample-1", "image": null,
+      "name": "Charizard — Base Set", "meta": "#4/102 — Near Mint — Rare Holo",
+      "purchase_price_usd": 120, "purchase_price_rmb": 864, "purchase_date": "2026-01-15",
+      "potential_value_usd": 450, "potential_value_rmb": 3240,
+      "listed_now": "Yes", "platform_listed": "eBay",
+      "actual_sale_usd": null, "actual_sale_rmb": null, "sale_date": null, "platform_sold": null,
+      "fee_pct": 13, "sale_after_fees_usd": null, "sale_after_fees_rmb": null,
+      "net_profit_usd": null, "net_profit_rmb": null,
+      "needs_review": false, "status": "listed"
     }
   ]
 };
@@ -284,12 +368,12 @@ window.CARD_DATA = {
 // ==== END DATA ====
 
 const D = window.CARD_DATA;
-const fmt = (n) => n === null || n === undefined || n === "" ? "—" : "$" + Number(n).toLocaleString(undefined, {maximumFractionDigits: 0});
+const fmt = (n) => (n === null || n === undefined || n === "") ? "—" : "$" + Number(n).toLocaleString(undefined, {maximumFractionDigits: 0});
+const fmtPlain = (n) => (n === null || n === undefined || n === "") ? "—" : Number(n).toLocaleString(undefined, {maximumFractionDigits: 0});
 
-document.getElementById('updatedAt').textContent = 'Last updated: ' + new Date(D.generated_at).toLocaleString();
+document.getElementById('updatedAt').textContent = 'Last updated ' + new Date(D.generated_at).toLocaleString();
 document.getElementById('fxRate').textContent = '1 USD = ' + D.exchange_rate + ' RMB';
 
-// ---- stat tiles ----
 const s = D.stats;
 const profitClass = s.total_net_profit_usd > 0 ? 'good' : (s.total_net_profit_usd < 0 ? 'critical' : '');
 const tiles = [
@@ -304,43 +388,94 @@ document.getElementById('statsRow').innerHTML = tiles.map(([label, value, cls]) 
   `<div class="stat-tile ${cls}"><div class="label">${label}</div><div class="value">${value}</div></div>`
 ).join('');
 
-// ---- money chart (Invested / Potential / Realized) ----
-(function () {
-  const rows = [
-    ['Invested', s.total_invested_usd, 'var(--s1)'],
-    ['Potential', s.total_potential_usd, 'var(--s2)'],
-    ['Realized', s.total_actual_usd, 'var(--s3)'],
-  ];
-  const max = Math.max(1, ...rows.map(r => r[1] || 0));
-  document.getElementById('moneyChart').innerHTML = rows.map(([label, val, color]) => {
-    const pct = Math.max(2, Math.round((val || 0) / max * 100));
-    return `<div class="bar-row" title="${label}: ${fmt(val)}">
-      <div class="bar-label">${label}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
-      <div class="bar-value">${fmt(val)}</div>
+// ---------------- tooltip helper ----------------
+const tipEl = document.getElementById('tooltip');
+function showTip(evt, html) {
+  tipEl.innerHTML = html;
+  tipEl.classList.add('show');
+  moveTip(evt);
+}
+function moveTip(evt) {
+  const pad = 14;
+  let x = evt.clientX + pad, y = evt.clientY + pad;
+  tipEl.style.left = x + 'px';
+  tipEl.style.top = y + 'px';
+}
+function hideTip() { tipEl.classList.remove('show'); }
+
+// ---------------- SVG horizontal bar chart ----------------
+function renderHBarChart(containerId, rows) {
+  const max = Math.max(1, ...rows.map(r => r.value || 0));
+  const el = document.getElementById(containerId);
+  el.innerHTML = rows.map((r, i) => {
+    const pct = Math.max(1.5, (r.value || 0) / max * 100);
+    const barId = containerId + '-bar-' + i;
+    return `<div class="hbar-row">
+      <div class="lbl">${r.label}</div>
+      <svg viewBox="0 0 100 22" preserveAspectRatio="none">
+        <rect x="0" y="7" width="100" height="8" rx="4" fill="var(--grid)"></rect>
+        <rect id="${barId}" x="0" y="7" width="${pct}" height="8" rx="4" fill="${r.color}" style="cursor:pointer"></rect>
+      </svg>
+      <div class="val">${fmt(r.value)}</div>
     </div>`;
   }).join('');
-})();
+  rows.forEach((r, i) => {
+    const bar = document.getElementById(containerId + '-bar-' + i);
+    bar.addEventListener('mousemove', (e) => showTip(e, `<strong>${r.label}</strong><br>${fmt(r.value)}`));
+    bar.addEventListener('mouseleave', hideTip);
+  });
+}
 
-// ---- status chart (Not listed / Listed / Sold) ----
+renderHBarChart('moneyChart', [
+  { label: 'Invested', value: s.total_invested_usd, color: 'var(--s1)' },
+  { label: 'Potential', value: s.total_potential_usd, color: 'var(--s2)' },
+  { label: 'Realized', value: s.total_actual_usd, color: 'var(--s3)' },
+]);
+
+// ---------------- donut status chart ----------------
 (function () {
   const rows = [
-    ['Not listed', s.unlisted_count, 'var(--muted)'],
-    ['Listed', s.listed_count, 'var(--s1)'],
-    ['Sold', s.sold_count, 'var(--s3)'],
+    { label: 'Sold', value: s.sold_count, color: 'var(--s3)' },
+    { label: 'Listed', value: s.listed_count, color: 'var(--s1)' },
+    { label: 'Not listed', value: s.unlisted_count, color: 'var(--muted)' },
   ];
-  const max = Math.max(1, ...rows.map(r => r[1] || 0));
-  document.getElementById('statusChart').innerHTML = rows.map(([label, val, color]) => {
-    const pct = Math.max(2, Math.round((val || 0) / max * 100));
-    return `<div class="bar-row" title="${label}: ${val}">
-      <div class="bar-label">${label}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
-      <div class="bar-value">${val}</div>
-    </div>`;
+  const total = Math.max(1, rows.reduce((a, r) => a + (r.value || 0), 0));
+  const R = 52, C = 2 * Math.PI * R, CX = 70, CY = 70;
+  let offset = 0;
+  const arcs = rows.map((r, i) => {
+    const frac = (r.value || 0) / total;
+    const len = frac * C;
+    const gap = rows.filter(x => x.value > 0).length > 1 ? 3 : 0;
+    const dash = `${Math.max(0, len - gap)} ${C - Math.max(0, len - gap)}`;
+    const el = `<circle cx="${CX}" cy="${CY}" r="${R}" fill="none" stroke="${r.color}" stroke-width="16"
+      stroke-dasharray="${dash}" stroke-dashoffset="${-offset}" stroke-linecap="round" data-i="${i}" style="cursor:pointer"></circle>`;
+    offset += len;
+    return el;
   }).join('');
+  const totalCount = s.total_cards;
+  const svg = `<svg viewBox="0 0 140 140" width="180" height="180" style="transform:rotate(-90deg)">
+      ${arcs}
+    </svg>`;
+  const legendHtml = rows.map(r => `<span><i style="background:${r.color}"></i>${r.label}: ${r.value}</span>`).join('');
+  document.getElementById('statusChart').innerHTML = `
+    <div class="donut-wrap">
+      <div style="position:relative;width:180px;height:180px;">
+        ${svg}
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="font-family:var(--font-display);font-size:26px;font-weight:800;">${totalCount}</div>
+          <div style="font-size:10.5px;color:var(--muted);">cards</div>
+        </div>
+      </div>
+      <div class="legend" style="margin-top:0;flex-direction:column;align-items:flex-start;">${legendHtml}</div>
+    </div>`;
+  document.querySelectorAll('#statusChart circle').forEach((c) => {
+    const r = rows[Number(c.dataset.i)];
+    c.addEventListener('mousemove', (e) => showTip(e, `<strong>${r.label}</strong><br>${r.value} card(s)`));
+    c.addEventListener('mouseleave', hideTip);
+  });
 })();
 
-// ---- needs-review list ----
+// ---------------- needs-review list ----------------
 (function () {
   const flagged = D.cards.filter(c => c.needs_review);
   const el = document.getElementById('reviewList');
@@ -359,7 +494,7 @@ document.getElementById('statsRow').innerHTML = tiles.map(([label, value, cls]) 
   </tbody></table>`;
 })();
 
-// ---- card grid with search/filter ----
+// ---------------- shared helpers ----------------
 function escapeHtml(str) {
   return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
@@ -392,25 +527,93 @@ function cardTile(c) {
   </div>`;
 }
 
+function dataTableRow(c) {
+  const profitCls = c.net_profit_usd > 0 ? 'pos' : (c.net_profit_usd < 0 ? 'neg' : '');
+  return `<tr data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}" data-review="${c.needs_review ? 'yes' : 'no'}">
+    <td class="col-identity">${c.image ? `<img class="thumb" src="${c.image}">` : '🃏'}</td>
+    <td class="col-identity details-cell"><strong>${escapeHtml(c.name)}</strong><br><span style="color:var(--text-secondary);font-size:11.5px;">${escapeHtml(c.meta||'')}</span></td>
+    <td class="col-purchase">${fmt(c.purchase_price_usd)}</td>
+    <td class="col-purchase">${fmtPlain(c.purchase_price_rmb)}</td>
+    <td class="col-purchase">${c.purchase_date || '—'}</td>
+    <td class="col-listing">${fmt(c.potential_value_usd)}</td>
+    <td class="col-listing">${fmtPlain(c.potential_value_rmb)}</td>
+    <td class="col-listing">${c.listed_now || '—'}</td>
+    <td class="col-listing">${c.platform_listed || '—'}</td>
+    <td class="col-sale">${fmt(c.actual_sale_usd)}</td>
+    <td class="col-sale">${fmtPlain(c.actual_sale_rmb)}</td>
+    <td class="col-sale">${c.sale_date || '—'}</td>
+    <td class="col-sale">${c.platform_sold || '—'}</td>
+    <td class="col-fees">${c.fee_pct !== null && c.fee_pct !== undefined ? c.fee_pct + '%' : '—'}</td>
+    <td class="col-fees">${fmt(c.sale_after_fees_usd)}</td>
+    <td class="col-fees">${fmtPlain(c.sale_after_fees_rmb)}</td>
+    <td class="col-fees ${profitCls}">${fmt(c.net_profit_usd)}</td>
+    <td class="col-fees ${profitCls}">${fmtPlain(c.net_profit_rmb)}</td>
+    <td class="col-review">${c.needs_review ? '<span class="badge review">Yes</span>' : 'No'}</td>
+  </tr>`;
+}
+
+const TABLE_HEADERS = [
+  ['grp-identity', 'Image'], ['grp-identity', 'Card Details'],
+  ['grp-purchase', 'Purchase (USD)'], ['grp-purchase', 'Purchase (RMB)'], ['grp-purchase', 'Purchase Date'],
+  ['grp-listing', 'Potential (USD)'], ['grp-listing', 'Potential (RMB)'], ['grp-listing', 'Listed?'], ['grp-listing', 'Platform Listed'],
+  ['grp-sale', 'Sale (USD)'], ['grp-sale', 'Sale (RMB)'], ['grp-sale', 'Sale Date'], ['grp-sale', 'Platform Sold'],
+  ['grp-fees', 'Fee %'], ['grp-fees', 'After Fees (USD)'], ['grp-fees', 'After Fees (RMB)'], ['grp-fees', 'Net Profit (USD)'], ['grp-fees', 'Net Profit (RMB)'],
+  ['grp-review', 'Review'],
+];
+
+function renderTableHead() {
+  const table = document.getElementById('dataTable');
+  const thead = '<thead><tr>' + TABLE_HEADERS.map(([cls, label]) => `<th class="${cls}">${label}</th>`).join('') + '</tr></thead>';
+  table.innerHTML = thead + '<tbody id="dataTableBody"></tbody>';
+}
+renderTableHead();
+
+// ---------------- filtering / view toggle ----------------
 const gridEl = document.getElementById('cardGrid');
+const tableWrap = document.getElementById('tableWrap');
 const emptyNote = document.getElementById('emptyNote');
-function renderGrid() {
+let currentView = 'cards';
+
+function getFiltered() {
   const q = document.getElementById('searchBox').value.trim().toLowerCase();
   const statusF = document.getElementById('statusFilter').value;
   const reviewF = document.getElementById('reviewFilter').value;
-  const filtered = D.cards.filter(c => {
+  return D.cards.filter(c => {
     if (q && !((c.name + ' ' + (c.meta||'')).toLowerCase().includes(q))) return false;
     if (statusF && c.status !== statusF) return false;
     if (reviewF === 'yes' && !c.needs_review) return false;
     return true;
   });
-  gridEl.innerHTML = filtered.map(cardTile).join('');
-  emptyNote.style.display = filtered.length === 0 ? 'block' : 'none';
 }
-document.getElementById('searchBox').addEventListener('input', renderGrid);
-document.getElementById('statusFilter').addEventListener('change', renderGrid);
-document.getElementById('reviewFilter').addEventListener('change', renderGrid);
-renderGrid();
+function renderView() {
+  const filtered = getFiltered();
+  emptyNote.style.display = filtered.length === 0 ? 'block' : 'none';
+  if (currentView === 'cards') {
+    gridEl.style.display = filtered.length ? 'grid' : 'none';
+    tableWrap.style.display = 'none';
+    gridEl.innerHTML = filtered.map(cardTile).join('');
+  } else {
+    gridEl.style.display = 'none';
+    tableWrap.style.display = filtered.length ? 'block' : 'none';
+    document.getElementById('dataTableBody').innerHTML = filtered.map(dataTableRow).join('');
+  }
+}
+document.getElementById('searchBox').addEventListener('input', renderView);
+document.getElementById('statusFilter').addEventListener('change', renderView);
+document.getElementById('reviewFilter').addEventListener('change', renderView);
+document.getElementById('btnViewCards').addEventListener('click', () => {
+  currentView = 'cards';
+  document.getElementById('btnViewCards').classList.add('active');
+  document.getElementById('btnViewTable').classList.remove('active');
+  renderView();
+});
+document.getElementById('btnViewTable').addEventListener('click', () => {
+  currentView = 'table';
+  document.getElementById('btnViewTable').classList.add('active');
+  document.getElementById('btnViewCards').classList.remove('active');
+  renderView();
+});
+renderView();
 </script>
 </body>
 </html>
