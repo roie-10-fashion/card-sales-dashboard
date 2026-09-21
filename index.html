@@ -26,6 +26,7 @@
     --warning: #fbbf24;
 
     --identity: #818cf8; --identity-tint: rgba(129,140,248,0.14);
+    --pop:      #d946ef; --pop-tint: rgba(217,70,239,0.14);
     --purchase: #60a5fa; --purchase-tint: rgba(96,165,250,0.14);
     --listing:  #c084fc; --listing-tint: rgba(192,132,252,0.14);
     --sale:     #34d399; --sale-tint: rgba(52,211,153,0.14);
@@ -246,7 +247,7 @@
     border-radius: 14px;
     background: var(--surface-solid);
   }
-  .data-table { min-width: 1500px; }
+  .data-table { min-width: 1700px; }
   .data-table th {
     position: sticky; top: 0;
     font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em;
@@ -257,17 +258,20 @@
   .data-table td.details-cell { white-space: normal; min-width: 220px; font-variant-numeric: normal; }
   .data-table tbody tr:hover { background: rgba(255,255,255,.03); }
   .grp-identity { background: var(--identity); } .grp-identity-bg td { background: var(--identity-tint); }
+  .grp-pop { background: var(--pop); }
   .grp-purchase { background: var(--purchase); }
   .grp-listing { background: var(--listing); }
   .grp-sale { background: var(--sale); }
   .grp-fees { background: var(--fees); }
   .grp-review { background: var(--review); }
   .col-identity { background: rgba(129,140,248,.05); }
+  .col-pop { background: rgba(217,70,239,.07); }
   .col-purchase { background: rgba(96,165,250,.05); }
   .col-listing { background: rgba(192,132,252,.05); }
   .col-sale { background: rgba(52,211,153,.05); }
   .col-fees { background: rgba(251,191,36,.05); }
   .col-review { background: rgba(248,113,113,.05); }
+  .badge.pop { background: var(--pop-tint); color: var(--pop); }
   .pos { color: var(--good); font-weight: 700; }
   .neg { color: var(--critical); font-weight: 700; }
   .thumb { width: 34px; height: 44px; border-radius: 5px; object-fit: cover; vertical-align: middle; background: var(--surface-2); }
@@ -343,7 +347,7 @@
 // ==== DATA (replaced by update_dashboard.py between the markers below) ====
 // DATA_START
 window.CARD_DATA = {
-  "generated_at": "2026-09-18T16:44:25.803689+08:00",
+  "generated_at": "2026-09-21T19:33:54.204356+08:00",
   "exchange_rate": 7.2,
   "stats": {
     "total_cards": 1,
@@ -362,6 +366,7 @@ window.CARD_DATA = {
       "image": null,
       "name": "Charizard — Base Set",
       "meta": "#4/102 — Near Mint — Rare Holo",
+      "pop_report": "12/450 @ PSA 9",
       "purchase_price_usd": 120.0,
       "purchase_price_rmb": 864.0,
       "purchase_date": "2026-01-15",
@@ -378,6 +383,7 @@ window.CARD_DATA = {
       "sale_after_fees_rmb": null,
       "net_profit_usd": null,
       "net_profit_rmb": null,
+      "profit_pct": null,
       "needs_review": false,
       "status": "listed"
     }
@@ -529,13 +535,17 @@ function cardTile(c) {
   let profitHtml = '';
   if (c.net_profit_usd !== null && c.net_profit_usd !== undefined) {
     const cls = c.net_profit_usd >= 0 ? 'good' : 'bad';
-    profitHtml = `<div class="profit ${cls}">${c.net_profit_usd >= 0 ? '+' : ''}${fmt(c.net_profit_usd)}</div>`;
+    const pctStr = (c.profit_pct !== null && c.profit_pct !== undefined)
+      ? ` (${c.profit_pct >= 0 ? '+' : ''}${Number(c.profit_pct).toFixed(1)}%)` : '';
+    profitHtml = `<div class="profit ${cls}">${c.net_profit_usd >= 0 ? '+' : ''}${fmt(c.net_profit_usd)}${pctStr}</div>`;
   }
+  const popHtml = c.pop_report ? `<div class="meta">POP: ${escapeHtml(String(c.pop_report))}</div>` : '';
   return `<div class="card-tile" data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}" data-review="${c.needs_review ? 'yes' : 'no'}">
     <div class="img-wrap">${img}</div>
     <div class="body">
       <div class="name">${escapeHtml(c.name)}</div>
       <div class="meta">${escapeHtml(c.meta || '')}</div>
+      ${popHtml}
       <div class="meta">Purchase: ${fmt(c.purchase_price_usd)}</div>
       ${profitHtml}
       <div class="badges">
@@ -551,6 +561,7 @@ function dataTableRow(c) {
   return `<tr data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}" data-review="${c.needs_review ? 'yes' : 'no'}">
     <td class="col-identity">${c.image ? `<img class="thumb" src="${c.image}">` : '🃏'}</td>
     <td class="col-identity details-cell"><strong>${escapeHtml(c.name)}</strong><br><span style="color:var(--text-secondary);font-size:11.5px;">${escapeHtml(c.meta||'')}</span></td>
+    <td class="col-pop">${c.pop_report ? escapeHtml(String(c.pop_report)) : '—'}</td>
     <td class="col-purchase">${fmt(c.purchase_price_usd)}</td>
     <td class="col-purchase">${fmtPlain(c.purchase_price_rmb)}</td>
     <td class="col-purchase">${c.purchase_date || '—'}</td>
@@ -567,16 +578,18 @@ function dataTableRow(c) {
     <td class="col-fees">${fmtPlain(c.sale_after_fees_rmb)}</td>
     <td class="col-fees ${profitCls}">${fmt(c.net_profit_usd)}</td>
     <td class="col-fees ${profitCls}">${fmtPlain(c.net_profit_rmb)}</td>
+    <td class="col-fees ${profitCls}">${c.profit_pct !== null && c.profit_pct !== undefined ? Number(c.profit_pct).toFixed(1) + '%' : '—'}</td>
     <td class="col-review">${c.needs_review ? '<span class="badge review">Yes</span>' : 'No'}</td>
   </tr>`;
 }
 
 const TABLE_HEADERS = [
   ['grp-identity', 'Image'], ['grp-identity', 'Card Details'],
+  ['grp-pop', 'POP Report'],
   ['grp-purchase', 'Purchase (USD)'], ['grp-purchase', 'Purchase (RMB)'], ['grp-purchase', 'Purchase Date'],
   ['grp-listing', 'Potential (USD)'], ['grp-listing', 'Potential (RMB)'], ['grp-listing', 'Listed?'], ['grp-listing', 'Platform Listed'],
   ['grp-sale', 'Sale (USD)'], ['grp-sale', 'Sale (RMB)'], ['grp-sale', 'Sale Date'], ['grp-sale', 'Platform Sold'],
-  ['grp-fees', 'Fee %'], ['grp-fees', 'After Fees (USD)'], ['grp-fees', 'After Fees (RMB)'], ['grp-fees', 'Net Profit (USD)'], ['grp-fees', 'Net Profit (RMB)'],
+  ['grp-fees', 'Fee %'], ['grp-fees', 'After Fees (USD)'], ['grp-fees', 'After Fees (RMB)'], ['grp-fees', 'Net Profit (USD)'], ['grp-fees', 'Net Profit (RMB)'], ['grp-fees', 'Profit %'],
   ['grp-review', 'Review'],
 ];
 
