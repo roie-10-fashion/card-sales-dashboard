@@ -175,6 +175,28 @@
   }
   .tooltip.show { opacity: 1; }
 
+  /* ---------------- lightbox (click a card photo to zoom) ---------------- */
+  .lightbox-overlay {
+    position: fixed; inset: 0; z-index: 1000;
+    background: rgba(6,5,12,.92);
+    display: none; align-items: center; justify-content: center;
+    padding: 32px; cursor: zoom-out;
+  }
+  .lightbox-overlay.show { display: flex; }
+  .lightbox-overlay img {
+    max-width: min(92vw, 720px); max-height: 88vh;
+    border-radius: 12px; box-shadow: 0 24px 64px rgba(0,0,0,.6);
+    border: 1px solid var(--border-strong);
+  }
+  .lightbox-close {
+    position: absolute; top: 18px; right: 24px;
+    color: var(--text-primary); font-size: 30px; line-height: 1;
+    background: none; border: none; cursor: pointer; opacity: .8;
+  }
+  .lightbox-close:hover { opacity: 1; }
+  .card-tile .img-wrap img { cursor: zoom-in; }
+  .thumb { cursor: zoom-in; }
+
   /* ---------------- toolbar / toggle ---------------- */
   .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
   .toolbar input[type=text] {
@@ -342,12 +364,16 @@
 </div>
 
 <div class="tooltip" id="tooltip"></div>
+<div class="lightbox-overlay" id="lightboxOverlay">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
+  <img id="lightboxImg" src="" alt="Card photo">
+</div>
 
 <script>
 // ==== DATA (replaced by update_dashboard.py between the markers below) ====
 // DATA_START
 window.CARD_DATA = {
-  "generated_at": "2026-09-22T08:40:01.154547+08:00",
+  "generated_at": "2026-09-22T08:49:43.036710+08:00",
   "stats": {
     "total_cards": 2,
     "total_invested_rmb": 2580.0,
@@ -539,7 +565,7 @@ function statusBadge(c) {
 }
 function cardTile(c) {
   const img = c.image
-    ? `<img src="${c.image}" alt="${escapeHtml(c.name)}" loading="lazy">`
+    ? `<img class="zoomable" src="${c.image}" alt="${escapeHtml(c.name)}" loading="lazy">`
     : `<div class="placeholder">🃏</div>`;
   let profitHtml = '';
   if (c.net_profit_rmb !== null && c.net_profit_rmb !== undefined) {
@@ -568,7 +594,7 @@ function cardTile(c) {
 function dataTableRow(c) {
   const profitCls = c.net_profit_rmb > 0 ? 'pos' : (c.net_profit_rmb < 0 ? 'neg' : '');
   return `<tr data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}" data-review="${c.needs_review ? 'yes' : 'no'}">
-    <td class="col-identity">${c.image ? `<img class="thumb" src="${c.image}">` : '🃏'}</td>
+    <td class="col-identity">${c.image ? `<img class="thumb zoomable" src="${c.image}">` : '🃏'}</td>
     <td class="col-identity details-cell"><strong>${escapeHtml(c.name)}</strong><br><span style="color:var(--text-secondary);font-size:11.5px;">${escapeHtml(c.meta||'')}</span></td>
     <td class="col-pop">${c.pop_report ? escapeHtml(String(c.pop_report)) : '—'}</td>
     <td class="col-purchase">${fmt(c.purchase_price_rmb)}</td>
@@ -649,6 +675,27 @@ document.getElementById('btnViewTable').addEventListener('click', () => {
   renderView();
 });
 renderView();
+
+// ---------------- lightbox (click a card photo to zoom) ----------------
+const lightboxOverlay = document.getElementById('lightboxOverlay');
+const lightboxImg = document.getElementById('lightboxImg');
+function openLightbox(src) {
+  lightboxImg.src = src;
+  lightboxOverlay.classList.add('show');
+}
+function closeLightbox() {
+  lightboxOverlay.classList.remove('show');
+  lightboxImg.src = '';
+}
+document.addEventListener('click', (e) => {
+  const img = e.target.closest('img.zoomable');
+  if (img) { openLightbox(img.src); return; }
+  if (e.target === lightboxOverlay) closeLightbox();
+});
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeLightbox();
+});
 </script>
 </body>
 </html>
