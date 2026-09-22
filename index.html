@@ -247,7 +247,7 @@
     border-radius: 14px;
     background: var(--surface-solid);
   }
-  .data-table { min-width: 1700px; }
+  .data-table { min-width: 1300px; }
   .data-table th {
     position: sticky; top: 0;
     font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em;
@@ -297,7 +297,7 @@
     <h2>📊 Overview</h2>
     <div class="charts">
       <div class="chart-card">
-        <div class="title">Invested vs. Potential vs. Realized (USD)</div>
+        <div class="title">Invested vs. Realized (RMB)</div>
         <div id="moneyChart"></div>
       </div>
       <div class="chart-card">
@@ -338,7 +338,7 @@
     <div class="empty-note" id="emptyNote" style="display:none;">No cards match this filter.</div>
   </section>
 
-  <footer>Generated automatically from Card_Sales_Tracker.xlsx &middot; Exchange rate used: <span id="fxRate"></span></footer>
+  <footer>Generated automatically from Card_Sales_Tracker.xlsx</footer>
 </div>
 
 <div class="tooltip" id="tooltip"></div>
@@ -347,7 +347,7 @@
 // ==== DATA (replaced by update_dashboard.py between the markers below) ====
 // DATA_START
 window.CARD_DATA = {
-  "generated_at": "2026-09-22T08:36:18.999030+08:00",
+  "generated_at": "2026-09-22T08:40:01.154547+08:00",
   "stats": {
     "total_cards": 2,
     "total_invested_rmb": 2580.0,
@@ -405,20 +405,18 @@ window.CARD_DATA = {
 // ==== END DATA ====
 
 const D = window.CARD_DATA;
-const fmt = (n) => (n === null || n === undefined || n === "") ? "—" : "$" + Number(n).toLocaleString(undefined, {maximumFractionDigits: 0});
+const fmt = (n) => (n === null || n === undefined || n === "") ? "—" : "¥" + Number(n).toLocaleString(undefined, {maximumFractionDigits: 0});
 const fmtPlain = (n) => (n === null || n === undefined || n === "") ? "—" : Number(n).toLocaleString(undefined, {maximumFractionDigits: 0});
 
 document.getElementById('updatedAt').textContent = 'Last updated ' + new Date(D.generated_at).toLocaleString();
-document.getElementById('fxRate').textContent = '1 USD = ' + D.exchange_rate + ' RMB';
 
 const s = D.stats;
-const profitClass = s.total_net_profit_usd > 0 ? 'good' : (s.total_net_profit_usd < 0 ? 'critical' : '');
+const profitClass = s.total_net_profit_rmb > 0 ? 'good' : (s.total_net_profit_rmb < 0 ? 'critical' : '');
 const tiles = [
   ['Total cards', s.total_cards, ''],
-  ['Invested', fmt(s.total_invested_usd), ''],
-  ['Potential value', fmt(s.total_potential_usd), ''],
-  ['Realized sales', fmt(s.total_actual_usd), ''],
-  ['Net profit', fmt(s.total_net_profit_usd), profitClass],
+  ['Invested', fmt(s.total_invested_rmb), ''],
+  ['Realized sales', fmt(s.total_actual_rmb), ''],
+  ['Net profit', fmt(s.total_net_profit_rmb), profitClass],
   ['Needs review', s.needs_review_count, s.needs_review_count > 0 ? 'warn' : ''],
 ];
 document.getElementById('statsRow').innerHTML = tiles.map(([label, value, cls]) =>
@@ -464,9 +462,8 @@ function renderHBarChart(containerId, rows) {
 }
 
 renderHBarChart('moneyChart', [
-  { label: 'Invested', value: s.total_invested_usd, color: 'var(--s1)' },
-  { label: 'Potential', value: s.total_potential_usd, color: 'var(--s2)' },
-  { label: 'Realized', value: s.total_actual_usd, color: 'var(--s3)' },
+  { label: 'Invested', value: s.total_invested_rmb, color: 'var(--s1)' },
+  { label: 'Realized', value: s.total_actual_rmb, color: 'var(--s3)' },
 ]);
 
 // ---------------- donut status chart ----------------
@@ -525,7 +522,7 @@ renderHBarChart('moneyChart', [
     </tr></thead><tbody>
     ${flagged.map(c => `<tr>
       <td><strong>${escapeHtml(c.name)}</strong><br><span style="color:var(--text-secondary)">${escapeHtml(c.meta||'')}</span></td>
-      <td>${fmt(c.purchase_price_usd)}</td>
+      <td>${fmt(c.purchase_price_rmb)}</td>
       <td>${statusBadge(c)}</td>
     </tr>`).join('')}
   </tbody></table>`;
@@ -545,11 +542,11 @@ function cardTile(c) {
     ? `<img src="${c.image}" alt="${escapeHtml(c.name)}" loading="lazy">`
     : `<div class="placeholder">🃏</div>`;
   let profitHtml = '';
-  if (c.net_profit_usd !== null && c.net_profit_usd !== undefined) {
-    const cls = c.net_profit_usd >= 0 ? 'good' : 'bad';
+  if (c.net_profit_rmb !== null && c.net_profit_rmb !== undefined) {
+    const cls = c.net_profit_rmb >= 0 ? 'good' : 'bad';
     const pctStr = (c.profit_pct !== null && c.profit_pct !== undefined)
       ? ` (${c.profit_pct >= 0 ? '+' : ''}${Number(c.profit_pct).toFixed(1)}%)` : '';
-    profitHtml = `<div class="profit ${cls}">${c.net_profit_usd >= 0 ? '+' : ''}${fmt(c.net_profit_usd)}${pctStr}</div>`;
+    profitHtml = `<div class="profit ${cls}">${c.net_profit_rmb >= 0 ? '+' : ''}${fmt(c.net_profit_rmb)}${pctStr}</div>`;
   }
   const popHtml = c.pop_report ? `<div class="meta">POP: ${escapeHtml(String(c.pop_report))}</div>` : '';
   return `<div class="card-tile" data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}" data-review="${c.needs_review ? 'yes' : 'no'}">
@@ -558,7 +555,7 @@ function cardTile(c) {
       <div class="name">${escapeHtml(c.name)}</div>
       <div class="meta">${escapeHtml(c.meta || '')}</div>
       ${popHtml}
-      <div class="meta">Purchase: ${fmt(c.purchase_price_usd)}</div>
+      <div class="meta">Purchase: ${fmt(c.purchase_price_rmb)}</div>
       ${profitHtml}
       <div class="badges">
         ${statusBadge(c)}
@@ -569,27 +566,21 @@ function cardTile(c) {
 }
 
 function dataTableRow(c) {
-  const profitCls = c.net_profit_usd > 0 ? 'pos' : (c.net_profit_usd < 0 ? 'neg' : '');
+  const profitCls = c.net_profit_rmb > 0 ? 'pos' : (c.net_profit_rmb < 0 ? 'neg' : '');
   return `<tr data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}" data-review="${c.needs_review ? 'yes' : 'no'}">
     <td class="col-identity">${c.image ? `<img class="thumb" src="${c.image}">` : '🃏'}</td>
     <td class="col-identity details-cell"><strong>${escapeHtml(c.name)}</strong><br><span style="color:var(--text-secondary);font-size:11.5px;">${escapeHtml(c.meta||'')}</span></td>
     <td class="col-pop">${c.pop_report ? escapeHtml(String(c.pop_report)) : '—'}</td>
-    <td class="col-purchase">${fmt(c.purchase_price_usd)}</td>
-    <td class="col-purchase">${fmtPlain(c.purchase_price_rmb)}</td>
+    <td class="col-purchase">${fmt(c.purchase_price_rmb)}</td>
     <td class="col-purchase">${c.purchase_date || '—'}</td>
-    <td class="col-listing">${fmt(c.potential_value_usd)}</td>
-    <td class="col-listing">${fmtPlain(c.potential_value_rmb)}</td>
     <td class="col-listing">${c.listed_now || '—'}</td>
     <td class="col-listing">${c.platform_listed || '—'}</td>
-    <td class="col-sale">${fmt(c.actual_sale_usd)}</td>
-    <td class="col-sale">${fmtPlain(c.actual_sale_rmb)}</td>
+    <td class="col-sale">${fmt(c.actual_sale_rmb)}</td>
     <td class="col-sale">${c.sale_date || '—'}</td>
     <td class="col-sale">${c.platform_sold || '—'}</td>
     <td class="col-fees">${c.fee_pct !== null && c.fee_pct !== undefined ? c.fee_pct + '%' : '—'}</td>
-    <td class="col-fees">${fmt(c.sale_after_fees_usd)}</td>
-    <td class="col-fees">${fmtPlain(c.sale_after_fees_rmb)}</td>
-    <td class="col-fees ${profitCls}">${fmt(c.net_profit_usd)}</td>
-    <td class="col-fees ${profitCls}">${fmtPlain(c.net_profit_rmb)}</td>
+    <td class="col-fees">${fmt(c.sale_after_fees_rmb)}</td>
+    <td class="col-fees ${profitCls}">${fmt(c.net_profit_rmb)}</td>
     <td class="col-fees ${profitCls}">${c.profit_pct !== null && c.profit_pct !== undefined ? Number(c.profit_pct).toFixed(1) + '%' : '—'}</td>
     <td class="col-review">${c.needs_review ? '<span class="badge review">Yes</span>' : 'No'}</td>
   </tr>`;
@@ -598,10 +589,10 @@ function dataTableRow(c) {
 const TABLE_HEADERS = [
   ['grp-identity', 'Image'], ['grp-identity', 'Card Details'],
   ['grp-pop', 'POP Report'],
-  ['grp-purchase', 'Purchase (USD)'], ['grp-purchase', 'Purchase (RMB)'], ['grp-purchase', 'Purchase Date'],
-  ['grp-listing', 'Potential (USD)'], ['grp-listing', 'Potential (RMB)'], ['grp-listing', 'Listed?'], ['grp-listing', 'Platform Listed'],
-  ['grp-sale', 'Sale (USD)'], ['grp-sale', 'Sale (RMB)'], ['grp-sale', 'Sale Date'], ['grp-sale', 'Platform Sold'],
-  ['grp-fees', 'Fee %'], ['grp-fees', 'After Fees (USD)'], ['grp-fees', 'After Fees (RMB)'], ['grp-fees', 'Net Profit (USD)'], ['grp-fees', 'Net Profit (RMB)'], ['grp-fees', 'Profit %'],
+  ['grp-purchase', 'Purchase (RMB)'], ['grp-purchase', 'Purchase Date'],
+  ['grp-listing', 'Listed?'], ['grp-listing', 'Platform Listed'],
+  ['grp-sale', 'Sale (RMB)'], ['grp-sale', 'Sale Date'], ['grp-sale', 'Platform Sold'],
+  ['grp-fees', 'Fee %'], ['grp-fees', 'After Fees (RMB)'], ['grp-fees', 'Net Profit (RMB)'], ['grp-fees', 'Profit %'],
   ['grp-review', 'Review'],
 ];
 
