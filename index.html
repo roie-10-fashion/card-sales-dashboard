@@ -344,7 +344,7 @@
     <h2>📊 Overview</h2>
     <div class="charts">
       <div class="chart-card">
-        <div class="title">Invested vs. Realized (RMB)</div>
+        <div class="title">Invested vs. Net Profit (RMB)</div>
         <div id="moneyChart"></div>
       </div>
       <div class="chart-card">
@@ -389,7 +389,7 @@
 // ==== DATA (replaced by update_dashboard.py between the markers below) ====
 // DATA_START
 window.CARD_DATA = {
-  "generated_at": "2026-09-23T11:59:37.261690+08:00",
+  "generated_at": "2026-09-23T19:49:58.059039+08:00",
   "stats": {
     "total_cards": 4,
     "total_invested_rmb": 12580.0,
@@ -486,18 +486,24 @@ window.CARD_DATA = {
 // ==== END DATA ====
 
 const D = window.CARD_DATA;
-const fmt = (n) => (n === null || n === undefined || n === "") ? "—" : "¥" + Number(n).toLocaleString(undefined, {maximumFractionDigits: 0});
+const fmt = (n) => {
+  if (n === null || n === undefined || n === "") return "—";
+  const num = Number(n);
+  const sign = num < 0 ? "-" : "";
+  return sign + "¥" + Math.abs(num).toLocaleString(undefined, {maximumFractionDigits: 0});
+};
 const fmtPlain = (n) => (n === null || n === undefined || n === "") ? "—" : Number(n).toLocaleString(undefined, {maximumFractionDigits: 0});
 
 document.getElementById('updatedAt').textContent = 'Last updated ' + new Date(D.generated_at).toLocaleString();
 
 const s = D.stats;
 const profitClass = s.total_net_profit_rmb > 0 ? 'good' : (s.total_net_profit_rmb < 0 ? 'critical' : '');
+const outstanding = s.total_invested_rmb - s.total_net_profit_rmb;
 const tiles = [
   ['Total cards', s.total_cards, ''],
-  ['Invested', fmt(s.total_invested_rmb), ''],
-  ['Realized sales', fmt(s.total_actual_rmb), ''],
+  ['Invested', fmt(-s.total_invested_rmb), 'warn'],
   ['Net profit', fmt(s.total_net_profit_rmb), profitClass],
+  ['Outstanding investment', fmt(-outstanding), 'warn'],
 ];
 document.getElementById('statsRow').innerHTML = tiles.map(([label, value, cls]) =>
   `<div class="stat-tile ${cls}"><div class="label">${label}</div><div class="value">${value}</div></div>`
@@ -520,10 +526,10 @@ function hideTip() { tipEl.classList.remove('show'); }
 
 // ---------------- SVG horizontal bar chart ----------------
 function renderHBarChart(containerId, rows) {
-  const max = Math.max(1, ...rows.map(r => r.value || 0));
+  const max = Math.max(1, ...rows.map(r => Math.abs(r.value || 0)));
   const el = document.getElementById(containerId);
   el.innerHTML = rows.map((r, i) => {
-    const pct = Math.max(1.5, (r.value || 0) / max * 100);
+    const pct = Math.max(1.5, Math.abs(r.value || 0) / max * 100);
     const barId = containerId + '-bar-' + i;
     return `<div class="hbar-row">
       <div class="lbl">${r.label}</div>
@@ -543,7 +549,7 @@ function renderHBarChart(containerId, rows) {
 
 renderHBarChart('moneyChart', [
   { label: 'Invested', value: s.total_invested_rmb, color: 'var(--s1)' },
-  { label: 'Realized', value: s.total_actual_rmb, color: 'var(--s3)' },
+  { label: 'Net profit', value: s.total_net_profit_rmb, color: 'var(--s3)' },
 ]);
 
 // ---------------- donut status chart ----------------
