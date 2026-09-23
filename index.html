@@ -251,17 +251,11 @@
   .badge.sold { background: var(--sale-tint); color: var(--sale); }
   .badge.listed { background: var(--listing-tint); color: var(--listing); }
   .badge.unlisted { background: rgba(255,255,255,.06); color: var(--text-secondary); }
-  .badge.review { background: var(--review-tint); color: var(--review); }
   .card-tile .profit { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
   .card-tile .profit.good { color: var(--good); }
   .card-tile .profit.bad { color: var(--critical); }
 
-  /* ---------------- review list ---------------- */
-  .review-table, .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-  .review-table { background: var(--surface-solid); border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
-  .review-table th, .review-table td { padding: 11px 14px; text-align: left; border-bottom: 1px solid var(--grid); }
-  .review-table th { background: var(--review-tint); color: var(--review); font-size: 11px; text-transform: uppercase; letter-spacing: .03em; }
-  .review-table tr:last-child td { border-bottom: none; }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
   .empty-note { padding: 22px; text-align: center; color: var(--text-secondary); font-size: 13px; background: var(--surface-solid); border-radius: 14px; border: 1px dashed var(--border); }
 
   /* ---------------- full data table ---------------- */
@@ -287,7 +281,6 @@
   .grp-listing { background: var(--listing); }
   .grp-sale { background: var(--sale); }
   .grp-fees { background: var(--fees); }
-  .grp-review { background: var(--review); }
   .col-identity { background: rgba(129,140,248,.05); }
   .col-pop { background: rgba(217,70,239,.07); }
   .data-table td.col-pop {
@@ -301,11 +294,10 @@
   .col-listing { background: rgba(192,132,252,.05); }
   .col-sale { background: rgba(52,211,153,.05); }
   .col-fees { background: rgba(251,191,36,.05); }
-  .col-review { background: rgba(248,113,113,.05); }
   .badge.pop { background: var(--pop-tint); color: var(--pop); }
   .pos { color: var(--good); font-weight: 700; }
   .neg { color: var(--critical); font-weight: 700; }
-  .thumb { width: 34px; height: 44px; border-radius: 5px; object-fit: cover; vertical-align: middle; background: var(--surface-2); }
+  .thumb { width: 68px; height: 88px; border-radius: 6px; object-fit: cover; vertical-align: middle; background: var(--surface-2); }
 
   footer { text-align: center; color: var(--muted); font-size: 11.5px; margin-top: 44px; }
 </style>
@@ -338,11 +330,6 @@
     </div>
   </section>
 
-  <section id="reviewSection">
-    <h2>🔍 Needs manual review</h2>
-    <div id="reviewList"></div>
-  </section>
-
   <section>
     <h2>🎴 Collection</h2>
     <div class="toolbar">
@@ -352,10 +339,6 @@
         <option value="sold">Sold</option>
         <option value="listed">Listed</option>
         <option value="unlisted">Not listed</option>
-      </select>
-      <select id="reviewFilter">
-        <option value="">All cards</option>
-        <option value="yes">Needs review only</option>
       </select>
       <div class="view-toggle">
         <button id="btnViewCards" class="active">🎴 Cards</button>
@@ -382,13 +365,12 @@
 // ==== DATA (replaced by update_dashboard.py between the markers below) ====
 // DATA_START
 window.CARD_DATA = {
-  "generated_at": "2026-09-23T09:06:03.108771+08:00",
+  "generated_at": "2026-09-23T09:23:32.544842+08:00",
   "stats": {
     "total_cards": 2,
     "total_invested_rmb": 2580.0,
     "total_actual_rmb": 4700.0,
     "total_net_profit_rmb": 2120.0,
-    "needs_review_count": 2,
     "listed_count": 0,
     "sold_count": 2,
     "unlisted_count": 0
@@ -412,7 +394,6 @@ window.CARD_DATA = {
       "sale_after_fees_rmb": 3400.0,
       "net_profit_rmb": 1720.0,
       "profit_pct": 102.38095238095238,
-      "needs_review": true,
       "status": "sold"
     },
     {
@@ -433,7 +414,6 @@ window.CARD_DATA = {
       "sale_after_fees_rmb": 1300.0,
       "net_profit_rmb": 400.0,
       "profit_pct": 44.44444444444444,
-      "needs_review": true,
       "status": "sold"
     }
   ]
@@ -454,7 +434,6 @@ const tiles = [
   ['Invested', fmt(s.total_invested_rmb), ''],
   ['Realized sales', fmt(s.total_actual_rmb), ''],
   ['Net profit', fmt(s.total_net_profit_rmb), profitClass],
-  ['Needs review', s.needs_review_count, s.needs_review_count > 0 ? 'warn' : ''],
 ];
 document.getElementById('statsRow').innerHTML = tiles.map(([label, value, cls]) =>
   `<div class="stat-tile ${cls}"><div class="label">${label}</div><div class="value">${value}</div></div>`
@@ -546,25 +525,6 @@ renderHBarChart('moneyChart', [
   });
 })();
 
-// ---------------- needs-review list ----------------
-(function () {
-  const flagged = D.cards.filter(c => c.needs_review);
-  const el = document.getElementById('reviewList');
-  if (flagged.length === 0) {
-    el.innerHTML = '<div class="empty-note">Nothing flagged right now — all imported cards have been checked.</div>';
-    return;
-  }
-  el.innerHTML = `<table class="review-table"><thead><tr>
-      <th>Card</th><th>Purchase price</th><th>Status</th>
-    </tr></thead><tbody>
-    ${flagged.map(c => `<tr>
-      <td><strong>${escapeHtml(c.name)}</strong><br><span style="color:var(--text-secondary)">${escapeHtml(c.meta||'')}</span></td>
-      <td>${fmt(c.purchase_price_rmb)}</td>
-      <td>${statusBadge(c)}</td>
-    </tr>`).join('')}
-  </tbody></table>`;
-})();
-
 // ---------------- shared helpers ----------------
 function escapeHtml(str) {
   return String(str || '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -586,7 +546,7 @@ function cardTile(c) {
     profitHtml = `<div class="profit ${cls}">${c.net_profit_rmb >= 0 ? '+' : ''}${fmt(c.net_profit_rmb)}${pctStr}</div>`;
   }
   const popHtml = c.pop_report_html ? `<div class="meta pop-meta">POP: ${c.pop_report_html}</div>` : '';
-  return `<div class="card-tile" data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}" data-review="${c.needs_review ? 'yes' : 'no'}">
+  return `<div class="card-tile" data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}">
     <div class="img-wrap">${img}</div>
     <div class="body">
       <div class="name">${escapeHtml(c.name)}</div>
@@ -596,7 +556,6 @@ function cardTile(c) {
       ${profitHtml}
       <div class="badges">
         ${statusBadge(c)}
-        ${c.needs_review ? '<span class="badge review">Review</span>' : ''}
       </div>
     </div>
   </div>`;
@@ -604,7 +563,7 @@ function cardTile(c) {
 
 function dataTableRow(c) {
   const profitCls = c.net_profit_rmb > 0 ? 'pos' : (c.net_profit_rmb < 0 ? 'neg' : '');
-  return `<tr data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}" data-review="${c.needs_review ? 'yes' : 'no'}">
+  return `<tr data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}">
     <td class="col-identity">${c.image ? `<img class="thumb zoomable" src="${c.image}">` : '🃏'}</td>
     <td class="col-identity details-cell"><strong>${escapeHtml(c.name)}</strong><br><span style="color:var(--text-secondary);font-size:11.5px;">${escapeHtml(c.meta||'')}</span></td>
     <td class="col-pop">${c.pop_report_html ? c.pop_report_html : '—'}</td>
@@ -619,7 +578,6 @@ function dataTableRow(c) {
     <td class="col-fees">${fmt(c.sale_after_fees_rmb)}</td>
     <td class="col-fees ${profitCls}">${fmt(c.net_profit_rmb)}</td>
     <td class="col-fees ${profitCls}">${c.profit_pct !== null && c.profit_pct !== undefined ? Number(c.profit_pct).toFixed(1) + '%' : '—'}</td>
-    <td class="col-review">${c.needs_review ? '<span class="badge review">Yes</span>' : 'No'}</td>
   </tr>`;
 }
 
@@ -630,7 +588,6 @@ const TABLE_HEADERS = [
   ['grp-listing', 'Listed?'], ['grp-listing', 'Platform Listed'],
   ['grp-sale', 'Sale (RMB)'], ['grp-sale', 'Sale Date'], ['grp-sale', 'Platform Sold'],
   ['grp-fees', 'Fee %'], ['grp-fees', 'After Fees (RMB)'], ['grp-fees', 'Net Profit (RMB)'], ['grp-fees', 'Profit %'],
-  ['grp-review', 'Review'],
 ];
 
 function renderTableHead() {
@@ -649,11 +606,9 @@ let currentView = 'cards';
 function getFiltered() {
   const q = document.getElementById('searchBox').value.trim().toLowerCase();
   const statusF = document.getElementById('statusFilter').value;
-  const reviewF = document.getElementById('reviewFilter').value;
   return D.cards.filter(c => {
     if (q && !((c.name + ' ' + (c.meta||'')).toLowerCase().includes(q))) return false;
     if (statusF && c.status !== statusF) return false;
-    if (reviewF === 'yes' && !c.needs_review) return false;
     return true;
   });
 }
@@ -672,7 +627,6 @@ function renderView() {
 }
 document.getElementById('searchBox').addEventListener('input', renderView);
 document.getElementById('statusFilter').addEventListener('change', renderView);
-document.getElementById('reviewFilter').addEventListener('change', renderView);
 document.getElementById('btnViewCards').addEventListener('click', () => {
   currentView = 'cards';
   document.getElementById('btnViewCards').classList.add('active');
