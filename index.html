@@ -244,6 +244,7 @@
   .card-tile .body { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; gap: 7px; }
   .card-tile .name { font-size: 13.5px; font-weight: 700; line-height: 1.3; font-family: var(--font-display); }
   .card-tile .meta { font-size: 11px; color: var(--text-secondary); }
+  .card-tile .meta.pop-meta { white-space: pre-line; line-height: 1.45; }
   .badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
   .badge { font-size: 10.5px; padding: 3px 9px; border-radius: 999px; font-weight: 700; }
   .badge.sold { background: var(--sale-tint); color: var(--sale); }
@@ -287,7 +288,7 @@
   .grp-fees { background: var(--fees); }
   .grp-review { background: var(--review); }
   .col-identity { background: rgba(129,140,248,.05); }
-  .col-pop { background: rgba(217,70,239,.07); }
+  .col-pop { background: rgba(217,70,239,.07); white-space: pre-line; line-height: 1.45; max-width: 220px; min-width: 150px; }
   .col-purchase { background: rgba(96,165,250,.05); }
   .col-listing { background: rgba(192,132,252,.05); }
   .col-sale { background: rgba(52,211,153,.05); }
@@ -373,7 +374,7 @@
 // ==== DATA (replaced by update_dashboard.py between the markers below) ====
 // DATA_START
 window.CARD_DATA = {
-  "generated_at": "2026-09-23T08:37:27.610443+08:00",
+  "generated_at": "2026-09-23T08:41:51.736888+08:00",
   "stats": {
     "total_cards": 2,
     "total_invested_rmb": 2580.0,
@@ -574,7 +575,7 @@ function cardTile(c) {
       ? ` (${c.profit_pct >= 0 ? '+' : ''}${Number(c.profit_pct).toFixed(1)}%)` : '';
     profitHtml = `<div class="profit ${cls}">${c.net_profit_rmb >= 0 ? '+' : ''}${fmt(c.net_profit_rmb)}${pctStr}</div>`;
   }
-  const popHtml = c.pop_report ? `<div class="meta">POP: ${escapeHtml(String(c.pop_report))}</div>` : '';
+  const popHtml = c.pop_report ? `<div class="meta pop-meta">POP: ${escapeHtml(String(c.pop_report).trim())}</div>` : '';
   return `<div class="card-tile" data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}" data-review="${c.needs_review ? 'yes' : 'no'}">
     <div class="img-wrap">${img}</div>
     <div class="body">
@@ -596,7 +597,7 @@ function dataTableRow(c) {
   return `<tr data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}" data-review="${c.needs_review ? 'yes' : 'no'}">
     <td class="col-identity">${c.image ? `<img class="thumb zoomable" src="${c.image}">` : '🃏'}</td>
     <td class="col-identity details-cell"><strong>${escapeHtml(c.name)}</strong><br><span style="color:var(--text-secondary);font-size:11.5px;">${escapeHtml(c.meta||'')}</span></td>
-    <td class="col-pop">${c.pop_report ? escapeHtml(String(c.pop_report)) : '—'}</td>
+    <td class="col-pop">${c.pop_report ? escapeHtml(String(c.pop_report).trim()) : '—'}</td>
     <td class="col-purchase">${fmt(c.purchase_price_rmb)}</td>
     <td class="col-purchase">${c.purchase_date || '—'}</td>
     <td class="col-listing">${c.listed_now || '—'}</td>
