@@ -365,14 +365,14 @@
 // ==== DATA (replaced by update_dashboard.py between the markers below) ====
 // DATA_START
 window.CARD_DATA = {
-  "generated_at": "2026-09-23T10:41:02.771930+08:00",
+  "generated_at": "2026-09-23T11:17:26.319653+08:00",
   "stats": {
     "total_cards": 4,
     "total_invested_rmb": 12580.0,
-    "total_actual_rmb": 38100.0,
-    "total_net_profit_rmb": 25520.0,
-    "listed_count": 0,
-    "sold_count": 4,
+    "total_actual_rmb": 4700.0,
+    "total_net_profit_rmb": 2120.0,
+    "listed_count": 2,
+    "sold_count": 2,
     "unlisted_count": 0
   },
   "cards": [
@@ -386,11 +386,10 @@ window.CARD_DATA = {
       "pop_report_html": "Total - 60\n---------------\nPSA 5 - 3\nPSA 6 - 3\n<strong>PSA 7 - 17</strong>\nPSA 8 - 16\nPSA 9 - 17\nPSA 10 - 1",
       "purchase_price_rmb": 1680.0,
       "purchase_date": "17.09.2026",
-      "listed_now": "SOLD",
-      "platform_listed": "NOT LISTED",
+      "status_text": "SOLD",
+      "platform": "PRIVET",
       "actual_sale_rmb": 3400.0,
       "sale_date": "21.09.2026",
-      "platform_sold": "PRIVET",
       "fee_pct": 0.0,
       "sale_after_fees_rmb": 3400.0,
       "net_profit_rmb": 1720.0,
@@ -407,11 +406,10 @@ window.CARD_DATA = {
       "pop_report_html": "Total - 151 \n---------------\nPSA 5 - 7\nPSA 6 - 11\nPSA 7 - 24\n<strong>PSA 8 - 39</strong>\nPSA 9 - 44\nPSA 10 - 23",
       "purchase_price_rmb": 900.0,
       "purchase_date": "19.09.2026",
-      "listed_now": "SOLD",
-      "platform_listed": "NOT LISTED",
+      "status_text": "SOLD",
+      "platform": "PRIVET",
       "actual_sale_rmb": 1300.0,
       "sale_date": "21.09.2026",
-      "platform_sold": "PRIVET",
       "fee_pct": 0.0,
       "sale_after_fees_rmb": 1300.0,
       "net_profit_rmb": 400.0,
@@ -428,16 +426,15 @@ window.CARD_DATA = {
       "pop_report_html": "Total - 62\n---------------\nPSA 5 - 10\n<strong>PSA 6 - 7</strong>\nPSA 7 - 12\nPSA 8 - 15\nPSA 9 - 3\nPSA 10 - 2",
       "purchase_price_rmb": 6000.0,
       "purchase_date": "09.09.2026",
-      "listed_now": "YES",
-      "platform_listed": "LISTED",
-      "actual_sale_rmb": 17700.0,
+      "status_text": "listed for: 17700¥",
+      "platform": "ebay",
+      "actual_sale_rmb": null,
       "sale_date": null,
-      "platform_sold": "EBAY",
       "fee_pct": null,
-      "sale_after_fees_rmb": 17700.0,
-      "net_profit_rmb": 11700.0,
-      "profit_pct": 195.0,
-      "status": "sold"
+      "sale_after_fees_rmb": null,
+      "net_profit_rmb": null,
+      "profit_pct": null,
+      "status": "listed"
     },
     {
       "id": "row-10",
@@ -449,16 +446,15 @@ window.CARD_DATA = {
       "pop_report_html": "Total - 54\n---------------\n<strong>PSA 5 - 8</strong>\nPSA 6 - 10\nPSA 7 - 13\nPSA 8 - 8\nPSA 9 - 6\nPSA 10 - 3",
       "purchase_price_rmb": 4000.0,
       "purchase_date": "09.09.2026",
-      "listed_now": "YES",
-      "platform_listed": "LISTED",
-      "actual_sale_rmb": 15700.0,
+      "status_text": "listed for: 15700¥",
+      "platform": "ebay",
+      "actual_sale_rmb": null,
       "sale_date": null,
-      "platform_sold": "EBAY",
       "fee_pct": null,
-      "sale_after_fees_rmb": 15700.0,
-      "net_profit_rmb": 11700.0,
-      "profit_pct": 292.5,
-      "status": "sold"
+      "sale_after_fees_rmb": null,
+      "net_profit_rmb": null,
+      "profit_pct": null,
+      "status": "listed"
     }
   ]
 };
@@ -616,11 +612,10 @@ function dataTableRow(c) {
     <td class="col-pop">${c.pop_report_html ? c.pop_report_html : '—'}</td>
     <td class="col-purchase">${fmt(c.purchase_price_rmb)}</td>
     <td class="col-purchase">${c.purchase_date || '—'}</td>
-    <td class="col-listing">${c.listed_now || '—'}</td>
-    <td class="col-listing">${c.platform_listed || '—'}</td>
+    <td class="col-listing">${c.status_text ? escapeHtml(c.status_text) : '—'}</td>
     <td class="col-sale">${fmt(c.actual_sale_rmb)}</td>
     <td class="col-sale">${c.sale_date || '—'}</td>
-    <td class="col-sale">${c.platform_sold || '—'}</td>
+    <td class="col-sale">${c.platform ? escapeHtml(c.platform) : '—'}</td>
     <td class="col-fees">${c.fee_pct !== null && c.fee_pct !== undefined ? c.fee_pct + '%' : '—'}</td>
     <td class="col-fees">${fmt(c.sale_after_fees_rmb)}</td>
     <td class="col-fees ${profitCls}">${fmt(c.net_profit_rmb)}</td>
@@ -632,8 +627,8 @@ const TABLE_HEADERS = [
   ['grp-identity', 'Image'], ['grp-identity', 'Card Details'], ['grp-identity', 'Serial Number'],
   ['grp-pop', 'POP Report'],
   ['grp-purchase', 'Purchase (RMB)'], ['grp-purchase', 'Purchase Date'],
-  ['grp-listing', 'Listed?'], ['grp-listing', 'Platform Listed'],
-  ['grp-sale', 'Sale (RMB)'], ['grp-sale', 'Sale Date'], ['grp-sale', 'Platform Sold'],
+  ['grp-listing', 'Status'],
+  ['grp-sale', 'Sale (RMB)'], ['grp-sale', 'Sale Date'], ['grp-sale', 'Platform'],
   ['grp-fees', 'Fee %'], ['grp-fees', 'After Fees (RMB)'], ['grp-fees', 'Net Profit (RMB)'], ['grp-fees', 'Profit %'],
 ];
 
