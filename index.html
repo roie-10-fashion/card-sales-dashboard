@@ -288,7 +288,14 @@
   .grp-fees { background: var(--fees); }
   .grp-review { background: var(--review); }
   .col-identity { background: rgba(129,140,248,.05); }
-  .col-pop { background: rgba(217,70,239,.07); white-space: pre-line; line-height: 1.45; max-width: 220px; min-width: 150px; }
+  .col-pop { background: rgba(217,70,239,.07); }
+  .data-table td.col-pop {
+    white-space: pre-line;
+    line-height: 1.45;
+    max-width: 220px;
+    min-width: 150px;
+    overflow-wrap: anywhere;
+  }
   .col-purchase { background: rgba(96,165,250,.05); }
   .col-listing { background: rgba(192,132,252,.05); }
   .col-sale { background: rgba(52,211,153,.05); }
@@ -374,7 +381,7 @@
 // ==== DATA (replaced by update_dashboard.py between the markers below) ====
 // DATA_START
 window.CARD_DATA = {
-  "generated_at": "2026-09-23T08:47:25.022082+08:00",
+  "generated_at": "2026-09-23T08:53:14.793564+08:00",
   "stats": {
     "total_cards": 2,
     "total_invested_rmb": 2580.0,
