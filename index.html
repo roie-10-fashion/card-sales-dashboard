@@ -221,7 +221,7 @@
   /* ---------------- toolbar / toggle ---------------- */
   .toolbar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; align-items: center; }
   .toolbar input[type=text] {
-    flex: 1; min-width: 180px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
+    flex: 1; min-width: 180px; max-width: 420px; padding: 10px 14px; border-radius: 10px; border: 1px solid var(--border);
     background: var(--surface-solid); color: var(--text-primary); font-size: 14px; font-family: var(--font-body);
   }
   .toolbar input::placeholder { color: var(--muted); }
@@ -390,7 +390,7 @@
 // ==== DATA (replaced by update_dashboard.py between the markers below) ====
 // DATA_START
 window.CARD_DATA = {
-  "generated_at": "2026-09-30T19:33:59.401728+08:00",
+  "generated_at": "2026-09-30T19:41:09.750958+08:00",
   "stats": {
     "total_cards": 4,
     "total_invested_rmb": 12580.0,
