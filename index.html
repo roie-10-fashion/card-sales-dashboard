@@ -1134,12 +1134,15 @@ document.getElementById('updatedAt').textContent = 'Last updated ' + new Date(D.
 
 const s = D.stats;
 const profitClass = s.total_net_profit_rmb > 0 ? 'good' : (s.total_net_profit_rmb < 0 ? 'critical' : '');
-const outstanding = s.total_invested_rmb - s.total_net_profit_rmb;
+// Outstanding investment = Invested (shown as a negative expense) + Total amount sold
+const outstanding = -s.total_invested_rmb + s.total_actual_rmb;
 const tiles = [
   ['Total cards', s.total_cards, ''],
+  ['Total cards sold', s.sold_count, ''],
+  ['Total amount sold', fmt(s.total_actual_rmb), 'good'],
   ['Invested', fmt(-s.total_invested_rmb), 'warn'],
   ['Net profit', fmt(s.total_net_profit_rmb), profitClass],
-  ['Outstanding investment', fmt(-outstanding), 'warn'],
+  ['Outstanding investment', fmt(outstanding), outstanding >= 0 ? 'good' : 'warn'],
 ];
 document.getElementById('statsRow').innerHTML = tiles.map(([label, value, cls]) =>
   `<div class="stat-tile ${cls}"><div class="label">${label}</div><div class="value">${value}</div></div>`
