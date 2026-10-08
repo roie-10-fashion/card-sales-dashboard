@@ -172,7 +172,7 @@
   }
 
   /* ---------------- charts ---------------- */
-  .charts { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 16px; }
+  .charts { display: grid; grid-template-columns: 1fr; gap: 16px; }
   @media (max-width: 780px) { .charts { grid-template-columns: 1fr; } }
   .chart-card {
     background: var(--surface-solid);
@@ -439,10 +439,6 @@
   <section>
     <h2>📊 Overview</h2>
     <div class="charts">
-      <div class="chart-card">
-        <div class="title">Invested vs. Net Profit (RMB)</div>
-        <div id="moneyChart"></div>
-      </div>
       <div class="chart-card">
         <div class="title">Cards by status</div>
         <div id="statusChart"></div>
@@ -1185,11 +1181,6 @@ function renderHBarChart(containerId, rows) {
     bar.addEventListener('mouseleave', hideTip);
   });
 }
-
-renderHBarChart('moneyChart', [
-  { label: 'Invested', value: s.total_invested_rmb, color: 'var(--s1)' },
-  { label: 'Net profit', value: s.total_net_profit_rmb, color: 'var(--s3)' },
-]);
 
 // ---------------- donut status chart ----------------
 (function () {
