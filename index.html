@@ -37,6 +37,7 @@
     --purchase: #60a5fa; --purchase-tint: rgba(96,165,250,0.14);
     --listing:  #c084fc; --listing-tint: rgba(192,132,252,0.14);
     --sale:     #34d399; --sale-tint: rgba(52,211,153,0.14);
+    --turq:     #2ee8d4; --turq-tint: rgba(46,232,212,0.12);
     --fees:     #fbbf24; --fees-tint: rgba(251,191,36,0.14);
     --review:   #f87171; --review-tint: rgba(248,113,113,0.14);
 
@@ -301,7 +302,7 @@
     border-radius: 14px;
     background: var(--surface-solid);
   }
-  .data-table { min-width: 1180px; }
+  .data-table { min-width: 1020px; }
   .data-table th {
     position: sticky; top: 0;
     font-size: 10.5px; text-transform: uppercase; letter-spacing: .03em;
@@ -317,6 +318,7 @@
   .grp-listing { background: var(--listing); }
   .grp-sale { background: var(--sale); }
   .grp-fees { background: var(--fees); }
+  .grp-turq { background: var(--turq); }
   .col-identity { background: rgba(129,140,248,.05); }
   .col-pop { background: rgba(217,70,239,.07); }
   .data-table td.col-pop {
@@ -331,6 +333,7 @@
   .col-listing { background: rgba(192,132,252,.05); }
   .col-sale { background: rgba(52,211,153,.05); }
   .col-fees { background: rgba(251,191,36,.05); }
+  .data-table td.col-turq { background: var(--turq-tint); color: var(--turq); font-weight: 700; }
   .badge.pop { background: var(--pop-tint); color: var(--pop); }
   .pos { color: var(--good); font-weight: 700; }
   .neg { color: var(--critical); font-weight: 700; }
@@ -398,6 +401,8 @@
       font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; text-align: left;
     }
     .data-table td.is-empty { display: none; }
+    .data-table td.col-turq { color: var(--turq); font-weight: 700; }
+    .data-table td.col-turq::before { color: var(--turq); }
     .data-table td.cell-photo { justify-content: center; padding: 14px 14px 6px; border-bottom: none; }
     .data-table td.cell-photo::before { display: none; }
     .data-table td.cell-photo .thumb { width: 120px; height: 160px; }
@@ -1282,14 +1287,12 @@ function dataTableRow(c) {
     <td class="col-identity details-cell"><strong>${escapeHtml(c.name)}</strong><br><span style="color:var(--text-secondary);font-size:11.5px;">${escapeHtml(c.meta||'')}</span></td>
     <td class="col-identity" data-label="Serial #">${c.serial_number ? escapeHtml(c.serial_number) : '—'}</td>
     <td class="col-pop" data-label="POP Report"${popTitle}>${popCell}</td>
-    <td class="col-purchase" data-label="Purchase ¥">${fmt(c.purchase_price_rmb)}</td>
+    <td class="col-purchase col-turq" data-label="Purchase ¥">${fmt(c.purchase_price_rmb)}</td>
     <td class="col-purchase" data-label="Purchase Date">${c.purchase_date || '—'}</td>
     <td class="col-listing" data-label="Status">${c.status_text ? escapeHtml(c.status_text) : '—'}</td>
-    <td class="col-sale" data-label="Sale ¥">${fmt(c.actual_sale_rmb)}</td>
+    <td class="col-sale col-turq" data-label="Sale ¥">${fmt(c.actual_sale_rmb)}</td>
     <td class="col-sale" data-label="Sale Date">${c.sale_date || '—'}</td>
     <td class="col-sale" data-label="Platform">${c.platform ? escapeHtml(c.platform) : '—'}</td>
-    <td class="col-fees" data-label="Fee %">${c.fee_pct !== null && c.fee_pct !== undefined ? c.fee_pct + '%' : '—'}</td>
-    <td class="col-fees" data-label="After Fees ¥">${fmt(c.sale_after_fees_rmb)}</td>
     <td class="col-fees ${profitCls}" data-label="Net Profit ¥">${fmt(c.net_profit_rmb)}</td>
     <td class="col-fees ${profitCls}" data-label="Profit %">${c.profit_pct !== null && c.profit_pct !== undefined ? Number(c.profit_pct).toFixed(1) + '%' : '—'}</td>
   </tr>`;
@@ -1298,10 +1301,10 @@ function dataTableRow(c) {
 const TABLE_HEADERS = [
   ['grp-identity', 'Image'], ['grp-identity', 'Card Details'], ['grp-identity', 'Serial #'],
   ['grp-pop', 'POP Report'],
-  ['grp-purchase', 'Purchase ¥'], ['grp-purchase', 'Purchase Date'],
+  ['grp-turq', 'Purchase ¥'], ['grp-purchase', 'Purchase Date'],
   ['grp-listing', 'Status'],
-  ['grp-sale', 'Sale ¥'], ['grp-sale', 'Sale Date'], ['grp-sale', 'Platform'],
-  ['grp-fees', 'Fee %'], ['grp-fees', 'After Fees ¥'], ['grp-fees', 'Net Profit ¥'], ['grp-fees', 'Profit %'],
+  ['grp-turq', 'Sale ¥'], ['grp-sale', 'Sale Date'], ['grp-sale', 'Platform'],
+  ['grp-fees', 'Net Profit ¥'], ['grp-fees', 'Profit %'],
 ];
 
 function renderTableHead() {
