@@ -219,12 +219,44 @@
     display: none; align-items: center; justify-content: center;
     padding: 32px; cursor: zoom-out;
   }
-  .lightbox-overlay.show { display: flex; }
-  .lightbox-overlay img {
-    max-width: min(92vw, 720px); max-height: 88vh;
+  .lightbox-overlay.show { display: flex; flex-direction: column; gap: 14px; }
+  .lb-track {
+    width: min(92vw, 720px); height: 82vh;
+    display: flex; overflow-x: auto; overflow-y: hidden;
+    scroll-snap-type: x mandatory; scroll-behavior: smooth;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .lb-track::-webkit-scrollbar { display: none; }
+  .lb-slide {
+    flex: 0 0 100%; height: 100%; scroll-snap-align: center;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lightbox-overlay .lb-slide img {
+    max-width: 100%; max-height: 100%; cursor: default;
     border-radius: 12px; box-shadow: 0 24px 64px rgba(0,0,0,.6);
     border: 1px solid var(--border-strong);
   }
+  .lightbox-overlay.single .lb-track { overflow-x: hidden; }
+  .lightbox-overlay.single #lbBackSlide,
+  .lightbox-overlay.single .lb-dots,
+  .lightbox-overlay.single .lb-nav { display: none; }
+  .lb-dots { display: flex; gap: 8px; }
+  .lb-dots button {
+    border: 1px solid var(--border-strong); background: rgba(255,255,255,.06);
+    color: var(--text-secondary); font: 600 12px var(--font-body);
+    padding: 6px 16px; border-radius: 999px; cursor: pointer;
+  }
+  .lb-dots button.active { background: var(--turq, #2ee8d4); color: #0d0b16; border-color: transparent; }
+  .lb-nav {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 1px solid var(--border-strong); background: rgba(20,18,32,.75);
+    color: var(--text-primary); font-size: 30px; line-height: 1; cursor: pointer;
+  }
+  .lb-nav:hover { background: rgba(46,232,212,.25); }
+  .lb-prev { left: max(16px, calc(50% - 420px)); }
+  .lb-next { right: max(16px, calc(50% - 420px)); }
+  .lb-nav[disabled] { opacity: .25; cursor: default; }
   .lightbox-close {
     position: absolute; top: 18px; right: 24px;
     color: var(--text-primary); font-size: 30px; line-height: 1;
@@ -413,8 +445,10 @@
     .data-table td.col-pop .pop-short { display: none; }
     .data-table td.col-pop .pop-full { display: block; white-space: pre-line; line-height: 1.5; font-size: 12px; }
 
-    .lightbox-overlay { padding: 14px; }
-    .lightbox-overlay img { max-width: 96vw; max-height: 82vh; }
+    .lightbox-overlay { padding: 14px 0; }
+    .lb-track { width: 100vw; height: 78vh; }
+    .lb-slide { padding: 0 12px; }
+    .lb-nav { display: none; }
     .lightbox-close { top: 8px; right: 12px; font-size: 38px; padding: 6px 10px; }
     footer { margin-top: 28px; }
   }
@@ -479,7 +513,16 @@
 <div class="tooltip" id="tooltip"></div>
 <div class="lightbox-overlay" id="lightboxOverlay">
   <button class="lightbox-close" id="lightboxClose" aria-label="Close">&times;</button>
-  <img id="lightboxImg" src="" alt="Card photo">
+  <div class="lb-track" id="lbTrack">
+    <div class="lb-slide"><img id="lightboxImg" src="" alt="Card photo - front"></div>
+    <div class="lb-slide" id="lbBackSlide"><img id="lightboxImgBack" src="" alt="Card photo - back"></div>
+  </div>
+  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Front">&#8249;</button>
+  <button class="lb-nav lb-next" id="lbNext" aria-label="Back">&#8250;</button>
+  <div class="lb-dots" id="lbDots">
+    <button type="button" data-i="0" class="active">Front</button>
+    <button type="button" data-i="1">Back</button>
+  </div>
 </div>
 
 <script>
@@ -1197,7 +1240,7 @@ function statusBadge(c) {
 }
 function cardTile(c) {
   const img = c.image
-    ? `<img class="zoomable" src="${c.image}" alt="${escapeHtml(c.name)}" loading="lazy">`
+    ? `<img class="zoomable" data-card-id="${c.id}" src="${c.image}" alt="${escapeHtml(c.name)}" loading="lazy">`
     : `<div class="placeholder">🃏</div>`;
   let profitHtml = '';
   if (c.net_profit_rmb !== null && c.net_profit_rmb !== undefined) {
@@ -1240,7 +1283,7 @@ function dataTableRow(c) {
     ? `<span class="pop-short">${escapeHtml(popShort)}</span><span class="pop-full">${popFull}</span>`
     : '—';
   return `<tr data-name="${escapeHtml((c.name + ' ' + (c.meta||'')).toLowerCase())}" data-status="${c.status}">
-    <td class="col-identity cell-photo">${c.image ? `<img class="thumb zoomable" src="${c.image}">` : '🃏'}</td>
+    <td class="col-identity cell-photo">${c.image ? `<img class="thumb zoomable" data-card-id="${c.id}" src="${c.image}">` : '🃏'}</td>
     <td class="col-identity details-cell"><strong>${escapeHtml(c.name)}</strong><br><span style="color:var(--text-secondary);font-size:11.5px;">${escapeHtml(c.meta||'')}</span></td>
     <td class="col-identity" data-label="Serial #">${c.serial_number ? escapeHtml(c.serial_number) : '—'}</td>
     <td class="col-pop" data-label="POP Report"${popTitle}>${popCell}</td>
@@ -1319,15 +1362,36 @@ renderView();
 // ---------------- lightbox (click a card photo to zoom) ----------------
 const lightboxOverlay = document.getElementById('lightboxOverlay');
 const lightboxImg = document.getElementById('lightboxImg');
-function openLightbox(src) {
+const lbTrack = document.getElementById('lbTrack');
+const lightboxImgBack = document.getElementById('lightboxImgBack');
+const lbDots = document.querySelectorAll('#lbDots button');
+const lbPrev = document.getElementById('lbPrev');
+const lbNext = document.getElementById('lbNext');
+function lbIndex() { return Math.round(lbTrack.scrollLeft / Math.max(1, lbTrack.clientWidth)); }
+function lbGo(i) { lbTrack.scrollTo({ left: i * lbTrack.clientWidth, behavior: 'smooth' }); }
+function lbSync() {
+  const i = lbIndex();
+  lbDots.forEach((b, k) => b.classList.toggle('active', k === i));
+  lbPrev.disabled = i === 0; lbNext.disabled = i === 1;
+}
+lbTrack.addEventListener('scroll', lbSync, { passive: true });
+lbDots.forEach(b => b.addEventListener('click', (e) => { e.stopPropagation(); lbGo(+b.dataset.i); }));
+lbPrev.addEventListener('click', (e) => { e.stopPropagation(); lbGo(0); });
+lbNext.addEventListener('click', (e) => { e.stopPropagation(); lbGo(1); });
+function openLightbox(src, backSrc) {
   lightboxImg.src = src;
+  lightboxImgBack.src = backSrc || '';
+  lightboxOverlay.classList.toggle('single', !backSrc);
   lightboxOverlay.classList.add('show');
+  lbTrack.style.scrollBehavior = 'auto'; lbTrack.scrollLeft = 0; lbTrack.style.scrollBehavior = '';
+  lbSync();
   // add a history step so the phone's Back button closes the photo
   if (!(history.state && history.state.lightbox)) history.pushState({ lightbox: true }, '');
 }
 function hideLightbox() {
   lightboxOverlay.classList.remove('show');
   lightboxImg.src = '';
+  lightboxImgBack.src = '';
 }
 function closeLightbox() {
   if (!lightboxOverlay.classList.contains('show')) return;
@@ -1339,12 +1403,20 @@ window.addEventListener('popstate', () => {
 });
 document.addEventListener('click', (e) => {
   const img = e.target.closest('img.zoomable');
-  if (img) { openLightbox(img.src); return; }
-  if (e.target === lightboxOverlay) closeLightbox();
+  if (img && !lightboxOverlay.contains(img)) {
+    const card = img.dataset.cardId ? D.cards.find(x => x.id === img.dataset.cardId) : null;
+    openLightbox(img.src, card ? card.image_back : null);
+    return;
+  }
+  if (e.target === lightboxOverlay || e.target.classList.contains('lb-slide')) closeLightbox();
 });
 document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeLightbox();
+  if (lightboxOverlay.classList.contains('show') && !lightboxOverlay.classList.contains('single')) {
+    if (e.key === 'ArrowRight') lbGo(1);
+    if (e.key === 'ArrowLeft') lbGo(0);
+  }
 });
 
 // ---------------- phone app (installable PWA) ----------------
