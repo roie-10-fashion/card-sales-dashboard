@@ -1322,11 +1322,21 @@ const lightboxImg = document.getElementById('lightboxImg');
 function openLightbox(src) {
   lightboxImg.src = src;
   lightboxOverlay.classList.add('show');
+  // add a history step so the phone's Back button closes the photo
+  if (!(history.state && history.state.lightbox)) history.pushState({ lightbox: true }, '');
 }
-function closeLightbox() {
+function hideLightbox() {
   lightboxOverlay.classList.remove('show');
   lightboxImg.src = '';
 }
+function closeLightbox() {
+  if (!lightboxOverlay.classList.contains('show')) return;
+  if (history.state && history.state.lightbox) history.back();  // popstate hides it
+  else hideLightbox();
+}
+window.addEventListener('popstate', () => {
+  if (lightboxOverlay.classList.contains('show')) hideLightbox();
+});
 document.addEventListener('click', (e) => {
   const img = e.target.closest('img.zoomable');
   if (img) { openLightbox(img.src); return; }
